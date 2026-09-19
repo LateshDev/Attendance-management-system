@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Hub{% endblock %}
+{% block page_title %}Reports & Analytics Center{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h4 class="fw-bold mb-1">Reports & Document Generation</h4>
+    <p class="text-muted small mb-0">Generate, print, and export batch-wise attendance records in PDF, Excel, and CSV formats</p>
+</div>
+
+<div class="row g-4">
+    <!-- 1. Batch Attendance Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon-wrapper stat-icon-primary">
+                        <i class="bi bi-collection-play-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Batch Report</h5>
+                        <small class="text-muted">Summary by Batch</small>
+                    </div>
+                </div>
+                <p class="text-muted small flex-grow-1">
+                    Complete student roster with total classes, present, absent, leave, and individual attendance percentages.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('reports.batch_report') }}" class="btn btn-outline-primary w-100">
+                        Open Report &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Low Attendance Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100 border-top border-danger border-3">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon-wrapper stat-icon-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-danger mb-0">Low Attendance</h5>
+                        <small class="text-muted">&lt; {{ threshold }}% Defaulters</small>
+                    </div>
+                </div>
+                <p class="text-muted small flex-grow-1">
+                    Identify students falling below the mandatory attendance threshold with parent contact details for notices.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('reports.low_attendance') }}" class="btn btn-outline-danger w-100">
+                        View Defaulters &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Daily Attendance Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon-wrapper stat-icon-success">
+                        <i class="bi bi-calendar-event-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Daily Report</h5>
+                        <small class="text-muted">Day-wise Sessions</small>
+                    </div>
+                </div>
+                <p class="text-muted small flex-grow-1">
+                    Snapshot of all attendance sessions marked across batches for a specific day with presence counts.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('reports.daily_report') }}" class="btn btn-outline-success w-100">
+                        Daily Summary &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Monthly Matrix Register -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon-wrapper stat-icon-warning">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Monthly Matrix</h5>
+                        <small class="text-muted">Day 1..31 Grid</small>
+                    </div>
+                </div>
+                <p class="text-muted small flex-grow-1">
+                    Traditional monthly register grid displaying P/A/L for every calendar day per student.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('attendance.monthly') }}" class="btn btn-outline-warning text-dark w-100">
+                        Open Grid &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Subject-wise Analysis -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon-wrapper stat-icon-primary" style="background: #e0e7ff; color: #4338ca;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Subject Analysis</h5>
+                        <small class="text-muted">Subject Attendance</small>
+                    </div>
+                </div>
+                <p class="text-muted small flex-grow-1">
+                    Analyze attendance percentages and total classes held broken down by subject within a batch.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('reports.subject_report') }}" class="btn btn-outline-primary w-100">
+                        Subject Breakdown &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
