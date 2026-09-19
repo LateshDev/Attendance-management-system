@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Attendance Grid{% endblock %}
+{% block page_title %}Monthly Attendance Matrix{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Monthly Attendance Register</h4>
+        <p class="text-muted small mb-0">Full day-by-day attendance sheet for the selected month</p>
+    </div>
+</div>
+
+<!-- Controls Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="{{ url_for('attendance.monthly') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1">Batch *</label>
+                <select name="batch_id" class="form-select" required onchange="this.form.submit()">
+                    <option value="">-- Select Batch --</option>
+                    {% for b in batches %}
+                        <option value="{{ b.id }}" {% if selected_batch_id == b.id %}selected{% endif %}>{{ b.batch_code }} - {{ b.batch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">Subject (Optional)</label>
+                <select name="subject_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- All Subjects --</option>
+                    {% for sub in subjects %}
+                        <option value="{{ sub.id }}" {% if selected_subject_id == sub.id %}selected{% endif %}>{{ sub.subject_code }} - {{ sub.subject_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1">Month</label>
+                <select name="month" class="form-select" onchange="this.form.submit()">
+                    {% for m_num, m_name in months_list %}
+                        <option value="{{ m_num }}" {% if month == m_num %}selected{% endif %}>{{ m_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1">Year</label>
+                <input type="number" name="year" value="{{ year }}" class="form-control" min="2020" max="2035" onchange="this.form.submit()">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-secondary w-100">Load</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_batch %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h6 class="fw-bold text-dark mb-0">
+                <i class="bi bi-calendar3 me-2 text-primary"></i>
+                {{ selected_batch.batch_name }} ({{ selected_batch.batch_code }})
+            </h6>
+            <small class="text-muted">Legend: <span class="badge bg-success-subtle text-success">P = Present</span> <span class="badge bg-danger-subtle text-danger">A = Absent</span> <span class="badge bg-warning-subtle text-warning">L = Leave</span> <span class="badge bg-light text-muted border">- = No Class</span></small>
+        </div>
+        <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print">
+            <i class="bi bi-printer me-1"></i> Print Sheet
+        </button>
+    </div>
+
+    <!-- Monthly Grid with Sticky First Column -->
+    <div class="monthly-grid-wrapper">
+        <table class="table table-bordered monthly-table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="sticky-col">Roll No & Student</th>
+                    {% for d in days %}
+                        <th style="min-width: 32px;">{{ d }}</th>
+                    {% endfor %}
+                    <th class="bg-primary text-white" style="min-width: 65px;">Rate %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in matrix %}
+                <tr>
+                    <td class="sticky-col">
+                        <span class="badge bg-light text-dark border me-1"><code>{{ row.student.roll_number }}</code></span>
+                        <span class="fw-semibold">{{ row.student.student_name }}</span>
+                    </td>
+                    {% for val in row.days %}
+                        <td class="monthly-cell-{{ val }}">{{ val }}</td>
+                    {% endfor %}
+                    <td class="fw-bold {% if row.percentage >= 75 %}text-success{% else %}text-danger{% endif %}">
+                        {{ row.percentage }}%
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{{ (days | length) + 2 }}" class="text-center py-4 text-muted">
+                        No students enrolled or no classes held in this period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card border-0 shadow-sm p-5 text-center text-muted">
+    <i class="bi bi-calendar3 fs-1 text-primary mb-2"></i>
+    <h5 class="fw-bold text-dark">Select a Batch</h5>
+    <p class="small mb-0">Select a batch from the options above to view the monthly attendance matrix.</p>
+</div>
+{% endif %}
+
+{% endblock %}
