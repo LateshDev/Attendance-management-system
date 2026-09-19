@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Attendance Session{% endblock %}
+{% block page_title %}Edit Attendance Session{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <div>
+                <h5 class="fw-bold mb-0 text-primary">{{ session.batch.batch_name }} ({{ session.batch.batch_code }})</h5>
+                <p class="text-muted small mb-0">
+                    Subject: <b>{{ session.subject.subject_name }}</b> | Date: <b>{{ session.session_date.strftime('%d-%m-%Y') }}</b>
+                </p>
+            </div>
+            <a href="{{ url_for('attendance.view_session', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">
+                Cancel
+            </a>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-3">Roll No</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr>
+                            <td class="ps-3"><span class="badge bg-light text-dark border"><code>{{ r.student.roll_number }}</code></span></td>
+                            <td class="fw-semibold text-dark">{{ r.student.student_name }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <input type="radio" class="btn-check" name="status_{{ r.student_id }}" id="pres_{{ r.student_id }}" value="Present" {% if r.status == 'Present' %}checked{% endif %}>
+                                    <label class="btn btn-outline-success" for="pres_{{ r.student_id }}">Present</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ r.student_id }}" id="abs_{{ r.student_id }}" value="Absent" {% if r.status == 'Absent' %}checked{% endif %}>
+                                    <label class="btn btn-outline-danger" for="abs_{{ r.student_id }}">Absent</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ r.student_id }}" id="leave_{{ r.student_id }}" value="Leave" {% if r.status == 'Leave' %}checked{% endif %}>
+                                    <label class="btn btn-outline-warning" for="leave_{{ r.student_id }}">Leave</label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" name="remarks_{{ r.student_id }}" value="{{ r.remarks or '' }}" class="form-control form-control-sm" placeholder="Optional remark">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold small">Session Remarks</label>
+                <input type="text" name="session_remarks" value="{{ session.remarks or '' }}" class="form-control">
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('attendance.view_session', session_id=session.id) }}" class="btn btn-outline-secondary">Discard Changes</a>
+                <button type="submit" class="btn btn-primary fw-semibold px-4">
+                    <i class="bi bi-check-lg me-1"></i> Save Updated Attendance
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
