@@ -1,0 +1,527 @@
+/* ==========================================================================
+   Batch-wise Attendance Management System - Stylesheet
+   Modern, responsive, touch-first design for Desktop, Tablet, and Mobile
+   ========================================================================== */
+
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  --secondary-color: #475569;
+  --dark-bg: #0f172a;
+  --sidebar-bg: #1e293b;
+  --sidebar-hover: #334155;
+  --sidebar-active: #3b82f6;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --success-color: #10b981;
+  --success-light: #ecfdf5;
+  --danger-color: #ef4444;
+  --danger-light: #fef2f2;
+  --warning-color: #f59e0b;
+  --warning-light: #fffbeb;
+  --info-color: #06b6d4;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #f8fafc;
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Layout Structure
+   -------------------------------------------------------------------------- */
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar */
+.app-sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  z-index: 1040;
+}
+
+.sidebar-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sidebar-brand i {
+  color: #60a5fa;
+  font-size: 1.4rem;
+}
+
+.sidebar-nav {
+  padding: 1rem 0.75rem;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.nav-section-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  padding: 0.75rem 0.75rem 0.35rem;
+  font-weight: 600;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+  margin-bottom: 0.2rem;
+}
+
+.sidebar-link i {
+  font-size: 1.15rem;
+  width: 22px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.sidebar-link:hover {
+  background-color: var(--sidebar-hover);
+  color: #ffffff;
+}
+
+.sidebar-link:hover i {
+  color: #ffffff;
+}
+
+.sidebar-link.active {
+  background-color: var(--sidebar-active);
+  color: #ffffff;
+}
+
+.sidebar-link.active i {
+  color: #ffffff;
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Main Content Area */
+.app-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Top Navbar */
+.app-topbar {
+  height: 64px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Content Container */
+.app-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Cards & UI Components
+   -------------------------------------------------------------------------- */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.25rem;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  font-weight: 600;
+}
+
+.stat-card {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-icon-primary { background: var(--primary-light); color: var(--primary-color); }
+.stat-icon-success { background: var(--success-light); color: var(--success-color); }
+.stat-icon-danger { background: var(--danger-light); color: var(--danger-color); }
+.stat-icon-warning { background: var(--warning-light); color: var(--warning-color); }
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.15rem;
+  font-weight: 500;
+}
+
+/* Badges */
+.badge-present {
+  background-color: var(--success-light);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 6px;
+}
+
+.badge-absent {
+  background-color: var(--danger-light);
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 6px;
+}
+
+.badge-leave {
+  background-color: var(--warning-light);
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   CORE ATTENDANCE SCREEN STYLES (MOBILE-FIRST)
+   -------------------------------------------------------------------------- */
+
+/* Sticky Bar for Fast Attendance Marking */
+.attendance-sticky-bar {
+  position: sticky;
+  top: 64px;
+  background: #ffffff;
+  z-index: 1010;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Live Counters Display */
+.counter-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.counter-total { background: #f1f5f9; color: #334155; }
+.counter-present { background: var(--success-light); color: #047857; }
+.counter-absent { background: var(--danger-light); color: #b91c1c; }
+.counter-leave { background: var(--warning-light); color: #b45309; }
+.counter-unmarked { background: #f3f4f6; color: #4b5563; }
+
+/* Student Row */
+.student-attendance-row {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.15s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .student-attendance-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.student-attendance-row:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-sm);
+}
+
+.student-info-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.student-roll-badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.student-name-text {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* Mobile-Friendly Large Tap Buttons */
+.attendance-btn-group {
+  display: flex;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .attendance-btn-group {
+    width: auto;
+  }
+}
+
+.status-btn {
+  flex: 1;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 8px;
+  border: 1.5px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease-in-out;
+}
+
+.status-btn:active {
+  transform: scale(0.97);
+}
+
+/* Present Active */
+.status-btn-present.active {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+/* Absent Active */
+.status-btn-absent.active {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+/* Leave Active */
+.status-btn-leave.active {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+}
+
+/* Monthly Matrix Grid */
+.monthly-grid-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.monthly-table th, .monthly-table td {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+}
+
+.monthly-table th.sticky-col,
+.monthly-table td.sticky-col {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+  z-index: 2;
+  text-align: left;
+  min-width: 140px;
+  border-right: 2px solid var(--border-color);
+}
+
+.monthly-cell-P { background-color: #ecfdf5; color: #047857; font-weight: bold; }
+.monthly-cell-A { background-color: #fef2f2; color: #b91c1c; font-weight: bold; }
+.monthly-cell-L { background-color: #fffbeb; color: #b45309; font-weight: bold; }
+
+/* --------------------------------------------------------------------------
+   Mobile Drawer & Responsiveness
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -260px;
+  }
+  
+  .app-sidebar.show {
+    left: 0;
+  }
+  
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1030;
+  }
+  
+  .sidebar-backdrop.show {
+    display: block;
+  }
+  
+  .app-content {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .app-sidebar, .app-topbar, .btn, .no-print, .attendance-sticky-bar {
+    display: none !important;
+  }
+  body, .app-main, .app-content {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
