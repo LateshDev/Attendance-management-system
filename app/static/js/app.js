@@ -36,4 +36,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(err => console.log('Service Worker registration failed:', err));
         });
     }
+
+    // PWA Install Prompt handling
+    let deferredPrompt;
+    const installContainer = document.getElementById('pwaInstallContainer');
+    const installBtn = document.getElementById('pwaInstallBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installContainer) {
+            installContainer.classList.remove('d-none');
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User install response: ${outcome}`);
+            deferredPrompt = null;
+            if (installContainer) {
+                installContainer.classList.add('d-none');
+            }
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        console.log('Attendo Pro installed successfully');
+        if (installContainer) {
+            installContainer.classList.add('d-none');
+        }
+    });
 });

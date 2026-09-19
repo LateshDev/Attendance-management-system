@@ -31,6 +31,29 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ---
 
+## 📱 Instant Mobile App Installation (Android & iOS)
+
+The application is engineered with **Progressive Web App (PWA)** architecture, allowing teachers and administrators to install and use it directly on **Android** and **iOS** devices as a standalone native app — with zero store downloads required.
+
+### 🤖 For Android Devices (Google Chrome)
+1. Open the Live URL in **Google Chrome**:
+   `https://sides-overnight-scenic-commissioner.trycloudflare.com`
+2. Tap the **"Install App"** button in the sidebar, OR:
+   - Tap the **three-dots menu (`⋮`)** at the top right of Chrome.
+   - Select **"Install App"** (or **"Add to Home Screen"**).
+3. Confirm by tapping **"Install"**.
+4. The **Attendo Pro** app icon will be added to your home screen and app drawer, running full-screen without browser bars.
+
+### 🍏 For iPhone & iPad (Apple Safari)
+1. Open the Live URL in **Apple Safari**:
+   `https://sides-overnight-scenic-commissioner.trycloudflare.com`
+2. Tap the **Share** button at the bottom navigation bar (square icon with upward arrow `⎋`).
+3. Scroll down the options and select **"Add to Home Screen" (`➕`)**.
+4. Tap **"Add"** at the top right.
+5. The **Attendo Pro** app is now installed on your iOS home screen! It runs in standalone fullscreen mode without Safari tabs or address bars.
+
+---
+
 ## 1. Key Features
 
 - **Mobile-First Attendance Screen**:
