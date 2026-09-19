@@ -17,6 +17,20 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ---
 
+## 📸 Application Screenshots & Visual Overview
+
+| **1. Executive Analytics Dashboard** | **2. Mobile-First Attendance Marking** |
+|:---:|:---:|
+| ![Executive Analytics Dashboard](docs/screenshots/dashboard.png) | ![Mobile-First Attendance Marking](docs/screenshots/mark_attendance.png) |
+| *Real-time metrics, 7-day attendance trends, status doughnuts, and active batch cards* | *Batch selector, touch-friendly Present/Absent/Leave buttons & real-time counter* |
+
+| **3. Low Attendance Defaulter Alerts (< 75%)** | **4. Monthly Attendance Register Matrix** |
+|:---:|:---:|
+| ![Low Attendance Defaulters](docs/screenshots/defaulters_report.png) | ![Monthly Attendance Register](docs/screenshots/monthly_register.png) |
+| *Automated threshold defaulters flagging with contact details & 1-click exports* | *Day 1..31 attendance register matrix with sticky student column* |
+
+---
+
 ## 1. Key Features
 
 - **Mobile-First Attendance Screen**:
