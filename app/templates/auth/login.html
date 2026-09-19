@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Attendance Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 py-5">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white text-center py-4 border-0">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white text-primary rounded-circle mb-2" style="width: 54px; height: 54px;">
+                    <i class="bi bi-calendar-check-fill fs-3"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Attendo Pro</h4>
+                <p class="mb-0 text-white-50 small">Batch-wise Attendance Management System</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-white">
+                <h5 class="fw-bold text-dark mb-3 text-center">Account Sign In</h5>
+                
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small" for="login_id">Email or Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            {{ form.login_id(class="form-control border-start-0 py-2", placeholder="admin@example.com", id="login_id", required=True) }}
+                        </div>
+                        {% if form.login_id.errors %}
+                            <div class="text-danger small mt-1">{{ form.login_id.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small" for="password">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            {{ form.password(class="form-control border-start-0 py-2", placeholder="••••••••", id="password", required=True) }}
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        {{ form.remember_me(class="form-check-input", id="remember_me") }}
+                        <label class="form-check-label text-muted small" for="remember_me">Keep me signed in</label>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold shadow-sm py-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Credentials Box -->
+                <div class="p-3 bg-light rounded-3 border">
+                    <div class="fw-bold small text-dark mb-2 d-flex align-items-center gap-1">
+                        <i class="bi bi-key-fill text-warning"></i> Demo Login Credentials:
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1 small">
+                        <span class="badge bg-primary text-uppercase">Admin</span>
+                        <code class="user-select-all">admin@example.com</code> / <code class="user-select-all">Admin@12345</code>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <span class="badge bg-secondary text-uppercase">Teacher</span>
+                        <code class="user-select-all">teacher@example.com</code> / <code class="user-select-all">Teacher@12345</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light text-center py-3 border-0 small text-muted">
+                &copy; {{ now_year }} {{ institution_name }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

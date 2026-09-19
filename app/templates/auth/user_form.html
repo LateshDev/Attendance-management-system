@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-primary">{{ title }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name *</label>
+                            {{ form.full_name(class="form-control", placeholder="e.g. Dr. Rajesh Verma") }}
+                            {% if form.full_name.errors %}<div class="text-danger small">{{ form.full_name.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address *</label>
+                            {{ form.email(class="form-control", placeholder="e.g. rajesh@example.com") }}
+                            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Username *</label>
+                            {{ form.username(class="form-control", placeholder="e.g. rverma") }}
+                            {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            {{ form.phone(class="form-control", placeholder="+91 9876543210") }}
+                            {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Role *</label>
+                            {{ form.role_id(class="form-select") }}
+                            {% if form.role_id.errors %}<div class="text-danger small">{{ form.role_id.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Password {% if user %}<small class="text-muted fw-normal">(Leave blank to keep current)</small>{% else %}*{% endif %}</label>
+                            {{ form.password(class="form-control", placeholder="••••••••") }}
+                            {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.is_active(class="form-check-input", id="is_active") }}
+                                <label class="form-check-label fw-semibold" for="is_active">Account Active (Permit Login)</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4 d-flex justify-content-between">
+                            <a href="{{ url_for('auth.users') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">Save User</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
