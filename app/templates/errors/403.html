@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden{% endblock %}
+{% block page_title %}Access Denied{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center text-center py-5">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-5 rounded-4">
+            <i class="bi bi-shield-x text-danger display-1 mb-3"></i>
+            <h2 class="fw-bold text-dark mb-2">403 - Access Forbidden</h2>
+            <p class="text-muted mb-4">You do not have the required administrative or staff permissions to access this page.</p>
+            <div>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary px-4 fw-semibold">
+                    <i class="bi bi-house-door-fill me-1"></i> Return to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
