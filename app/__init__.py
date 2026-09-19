@@ -36,6 +36,11 @@ def create_app(config_name='default'):
     def health():
         return jsonify({"status": "ok"}), 200
 
+    # Mobile App Install Landing Page
+    @app.route('/install')
+    def app_install():
+        return render_template('install.html')
+
     # Context processors for global template access
     @app.context_processor
     def inject_global_settings():

@@ -40,6 +40,11 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
+@auth_bp.route('/install')
+def install():
+    return render_template('install.html')
+
+
 @auth_bp.route('/logout')
 @login_required
 def logout():

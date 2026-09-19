@@ -40,20 +40,24 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ## 📱 Instant Mobile App Installation (Android & iOS)
 
+> **Direct Mobile Install Link**: **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
+
 The application is engineered with **Progressive Web App (PWA)** architecture, allowing teachers and administrators to install and use it directly on **Android** and **iOS** devices as a standalone native app — with zero store downloads required.
 
+<p align="center">
+  <img src="docs/screenshots/install_page.png" alt="Attendo Pro Mobile App Installation Screen" width="420" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+</p>
+
 ### 🤖 For Android Devices (Google Chrome)
-1. Open the Live URL in **Google Chrome**:
-   `https://sides-overnight-scenic-commissioner.trycloudflare.com`
-2. Tap the **"Install App"** button in the sidebar, OR:
-   - Tap the **three-dots menu (`⋮`)** at the top right of Chrome.
-   - Select **"Install App"** (or **"Add to Home Screen"**).
-3. Confirm by tapping **"Install"**.
+1. Open the Direct Install link in **Google Chrome**:
+   **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
+2. Tap the large green **"INSTALL ON ANDROID"** button.
+3. Confirm by tapping **"Install"** on Android's system dialog.
 4. The **Attendo Pro** app icon will be added to your home screen and app drawer, running full-screen without browser bars.
 
 ### 🍏 For iPhone & iPad (Apple Safari)
-1. Open the Live URL in **Apple Safari**:
-   `https://sides-overnight-scenic-commissioner.trycloudflare.com`
+1. Open the Direct Install link in **Apple Safari**:
+   **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
 2. Tap the **Share** button at the bottom navigation bar (square icon with upward arrow `⎋`).
 3. Scroll down the options and select **"Add to Home Screen" (`➕`)**.
 4. Tap **"Add"** at the top right.

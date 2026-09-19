@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Install Attendo Pro Mobile App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 py-4">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <!-- App Store Style Header Banner -->
+            <div class="card-header text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0284c7 100%);">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-4 shadow-lg p-2 mb-3" style="width: 88px; height: 88px;">
+                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="Attendo Pro Logo" style="width: 72px; height: 72px; object-fit: contain;">
+                </div>
+                <h3 class="fw-bold mb-1 text-white">Attendo Pro</h3>
+                <p class="mb-2 text-white-50 small">Batch-wise Attendance Management App</p>
+                <div class="d-flex justify-content-center align-items-center gap-3 text-white-50 small mt-2">
+                    <span><i class="bi bi-star-fill text-warning"></i> 4.9 ★</span>
+                    <span>•</span>
+                    <span><i class="bi bi-hdd"></i> 1.8 MB</span>
+                    <span>•</span>
+                    <span class="badge bg-success bg-opacity-75 text-white">Verified Safe</span>
+                </div>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <!-- OS Selector Tabs -->
+                <ul class="nav nav-pills nav-fill mb-4 bg-light p-1 rounded-3" id="installTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active py-2 fw-semibold" id="android-tab" data-bs-toggle="pill" data-bs-target="#android-pane" type="button" role="tab">
+                            <i class="bi bi-android2 text-success me-1"></i> Android
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-2 fw-semibold" id="ios-tab" data-bs-toggle="pill" data-bs-target="#ios-pane" type="button" role="tab">
+                            <i class="bi bi-apple text-dark me-1"></i> iPhone / iOS
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="installTabsContent">
+                    <!-- Android Pane -->
+                    <div class="tab-pane fade show active" id="android-pane" role="tabpanel">
+                        <!-- Primary Install Button for Android -->
+                        <div class="d-grid mb-3">
+                            <button class="btn btn-success btn-lg fw-bold shadow py-3 d-flex align-items-center justify-content-center gap-2" id="androidInstallBtn" style="border-radius: 12px; font-size: 1.1rem; background-color: #10b981; border-color: #059669;">
+                                <i class="bi bi-download fs-4"></i>
+                                <span>INSTALL ON ANDROID</span>
+                            </button>
+                        </div>
+
+                        <div id="installStatusAlert" class="alert alert-info py-2 small d-none text-center"></div>
+
+                        <!-- Manual Android Instructions (always visible as backup) -->
+                        <div class="p-3 bg-light rounded-3 border mt-3">
+                            <h6 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
+                                <i class="bi bi-info-circle-fill text-primary"></i> If button doesn't prompt:
+                            </h6>
+                            <ol class="mb-0 ps-3 small text-muted">
+                                <li class="mb-1">Open this link in <strong>Google Chrome</strong> on Android.</li>
+                                <li class="mb-1">Tap the <strong>3 dots (⋮)</strong> in Chrome's top-right corner.</li>
+                                <li>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- iOS Pane -->
+                    <div class="tab-pane fade" id="ios-pane" role="tabpanel">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-apple text-dark"></i> Steps for iPhone / iPad:
+                            </h6>
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div class="badge bg-primary rounded-circle p-2 fs-6">1</div>
+                                <div>
+                                    <div class="fw-semibold text-dark small">Open in Safari</div>
+                                    <div class="text-muted small">Ensure you are using <strong>Apple Safari</strong> on your iPhone.</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div class="badge bg-primary rounded-circle p-2 fs-6">2</div>
+                                <div>
+                                    <div class="fw-semibold text-dark small">Tap the Share Button</div>
+                                    <div class="text-muted small">Tap the Share icon at the bottom of Safari (<i class="bi bi-box-arrow-up text-primary"></i> square with arrow).</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-primary rounded-circle p-2 fs-6">3</div>
+                                <div>
+                                    <div class="fw-semibold text-dark small">Add to Home Screen</div>
+                                    <div class="text-muted small">Scroll down and tap <strong>"Add to Home Screen" (<i class="bi bi-plus-square"></i>)</strong>, then tap <strong>Add</strong>.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features list -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="row g-2 text-muted small">
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> <span>1-Tap Attendance</span>
+                        </div>
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> <span>Offline Caching</span>
+                        </div>
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> <span>PDF & Excel Exports</span>
+                        </div>
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> <span>No Play Store Needed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Direct Web Login Button -->
+                <div class="d-grid mt-4">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary py-2 fw-semibold">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Open Web Version / Login
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light text-center py-3 border-0 small text-muted">
+                &copy; {{ now_year }} {{ institution_name }} • Attendo Pro Mobile PWA
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let deferredPrompt;
+const installBtn = document.getElementById('androidInstallBtn');
+const statusAlert = document.getElementById('installStatusAlert');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) {
+        installBtn.classList.add('pulse-animation');
+    }
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                statusAlert.className = 'alert alert-success py-2 small text-center';
+                statusAlert.innerText = '🎉 Installation started! Check your home screen.';
+                statusAlert.classList.remove('d-none');
+            }
+            deferredPrompt = null;
+        } else {
+            // If already installed or browser hasn't fired event yet
+            statusAlert.className = 'alert alert-info py-2 small text-center';
+            statusAlert.innerHTML = '📲 Tap Chrome menu <strong>(⋮)</strong> and tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.';
+            statusAlert.classList.remove('d-none');
+        }
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    statusAlert.className = 'alert alert-success py-2 small text-center';
+    statusAlert.innerText = '✅ Attendo Pro has been successfully installed on your device!';
+    statusAlert.classList.remove('d-none');
+    if (installBtn) installBtn.classList.add('d-none');
+});
+</script>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+.pulse-animation {
+    animation: pulse 2s infinite ease-in-out;
+}
+</style>
+{% endblock %}
