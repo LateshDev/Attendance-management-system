@@ -247,3 +247,4 @@ copy instance\attendance.db instance\backups\attendance_backup.db
 - [x] Production container runs as an unprivileged `appuser` (non-root).
 - [x] Health check endpoint (`/health`) for cloud monitoring.
 
+
