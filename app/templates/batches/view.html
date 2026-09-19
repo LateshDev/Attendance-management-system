@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Batch: {{ batch.batch_name }}{% endblock %}
+{% block page_title %}Batch Details: {{ batch.batch_code }}{% endblock %}
+
+{% block content %}
+<!-- Header Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary fs-6">{{ batch.batch_code }}</span>
+            <h3 class="fw-bold text-dark mb-0">{{ batch.batch_name }}</h3>
+            <span class="badge {% if batch.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">{{ batch.status }}</span>
+        </div>
+        <p class="text-muted small mb-0"><i class="bi bi-mortarboard me-1"></i> {{ batch.course_name }} | In-Charge: <b>{{ batch.teacher.full_name if batch.teacher else 'Not Assigned' }}</b></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('attendance.mark', batch_id=batch.id) }}" class="btn btn-primary">
+            <i class="bi bi-check2-circle me-1"></i> Mark Attendance
+        </a>
+        <a href="{{ url_for('reports.batch_report', batch_id=batch.id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-bar-graph me-1"></i> Report
+        </a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('batches.edit', batch_id=batch.id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stats Strip -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="text-muted small">Total Students</div>
+            <div class="h3 fw-bold text-primary mb-0">{{ enrolled_students | length }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="text-muted small">Sessions Held</div>
+            <div class="h3 fw-bold text-dark mb-0">{{ total_sessions }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="text-muted small">Overall Attendance</div>
+            <div class="h3 fw-bold text-success mb-0">{{ batch_attendance_pct }}%</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="text-muted small">Start Date</div>
+            <div class="h5 fw-bold text-secondary mb-0 pt-1">{{ batch.start_date.strftime('%d-%m-%Y') }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Enrolled Students Column -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-people me-2 text-primary"></i>Enrolled Students ({{ enrolled_students | length }})
+                </h5>
+                {% if current_user.is_admin %}
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#enrollStudentModal">
+                    <i class="bi bi-person-plus me-1"></i> Enroll Student
+                </button>
+                {% endif %}
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th class="ps-3">Roll No</th>
+                            <th>Student Name</th>
+                            <th>Contact</th>
+                            <th class="text-center">Rate</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for st in enrolled_students %}
+                        {% set st_stats = st.calculate_attendance_stats(batch_id=batch.id) %}
+                        <tr>
+                            <td class="ps-3"><span class="badge bg-light text-dark border"><code>{{ st.roll_number }}</code></span></td>
+                            <td>
+                                <a href="{{ url_for('students.profile', student_id=st.id) }}" class="fw-semibold text-decoration-none text-dark hover-primary">
+                                    {{ st.student_name }}
+                                </a>
+                            </td>
+                            <td class="small text-muted">{{ st.mobile_number or '-' }}</td>
+                            <td class="text-center">
+                                <span class="badge {% if st_stats.percentage >= 75 %}bg-success{% elif st_stats.percentage >= 60 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                    {{ st_stats.percentage }}%
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('students.profile', student_id=st.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="View Profile">
+                                    <i class="bi bi-person-vcard"></i>
+                                </a>
+                                {% if current_user.is_admin %}
+                                <form method="POST" action="{{ url_for('batches.remove_student', batch_id=batch.id, student_id=st.id) }}" class="d-inline" onsubmit="return confirm('Remove student from this batch?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" title="Remove from batch">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted small">
+                                No students currently enrolled in this batch.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Subjects & Info Column -->
+    <div class="col-lg-4">
+        <!-- Subjects in Batch -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-bookmark me-2 text-primary"></i>Assigned Subjects</h6>
+                {% if current_user.is_admin %}
+                <button class="btn btn-sm btn-outline-primary py-0 px-2" data-bs-toggle="modal" data-bs-target="#assignSubjectModal">
+                    <i class="bi bi-plus"></i> Assign
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for bs in batch_subjects %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                        <div>
+                            <div class="fw-semibold small text-dark">{{ bs.subject.subject_name }}</div>
+                            <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">{{ bs.subject.subject_code }}</span>
+                        </div>
+                        {% if current_user.is_admin %}
+                        <form method="POST" action="{{ url_for('batches.remove_subject', batch_id=batch.id, subject_id=bs.subject_id) }}" class="d-inline" onsubmit="return confirm('Remove subject from batch?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-sm text-danger border-0 p-0" title="Remove">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-center text-muted small py-3">
+                        No subjects mapped to this batch yet.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Batch Info Box -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-info-circle me-2 text-primary"></i>Batch Information</h6>
+            </div>
+            <div class="card-body p-3 small">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Batch Code:</span>
+                    <span class="fw-bold">{{ batch.batch_code }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Course:</span>
+                    <span class="fw-semibold">{{ batch.course_name }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Teacher:</span>
+                    <span>{{ batch.teacher.full_name if batch.teacher else 'None' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Created On:</span>
+                    <span>{{ batch.created_at.strftime('%d-%m-%Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Enroll Existing Student -->
+{% if current_user.is_admin %}
+<div class="modal fade" id="enrollStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">Enroll Student in {{ batch.batch_code }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('batches.enroll_student', batch_id=batch.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Student</label>
+                        <select name="student_id" class="form-select" required>
+                            <option value="">-- Choose Student --</option>
+                            {% for st in available_students %}
+                            <option value="{{ st.id }}">{{ st.roll_number }} - {{ st.student_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Shows active students not yet enrolled in this batch.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-semibold">Enroll Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Assign Subject -->
+<div class="modal fade" id="assignSubjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">Assign Subject to {{ batch.batch_code }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('batches.assign_subject', batch_id=batch.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Subject</label>
+                        <select name="subject_id" class="form-select" required>
+                            <option value="">-- Choose Subject --</option>
+                            {% for sub in subjects %}
+                            {% if sub.id not in assigned_subject_ids %}
+                            <option value="{{ sub.id }}">{{ sub.subject_code }} - {{ sub.subject_name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-semibold">Assign Subject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

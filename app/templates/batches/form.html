@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-primary">{{ title }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Batch Name *</label>
+                            {{ form.batch_name(class="form-control", placeholder="e.g. Commerce Batch A") }}
+                            {% if form.batch_name.errors %}<div class="text-danger small">{{ form.batch_name.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Batch Code * (Unique Identifier)</label>
+                            {{ form.batch_code(class="form-control", placeholder="e.g. COMM-A") }}
+                            {% if form.batch_code.errors %}<div class="text-danger small">{{ form.batch_code.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Course / Class Name *</label>
+                            {{ form.course_name(class="form-control", placeholder="e.g. Class 12 Commerce") }}
+                            {% if form.course_name.errors %}<div class="text-danger small">{{ form.course_name.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assigned Teacher (In-Charge)</label>
+                            {{ form.teacher_id(class="form-select") }}
+                            {% if form.teacher_id.errors %}<div class="text-danger small">{{ form.teacher_id.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Start Date *</label>
+                            {{ form.start_date(class="form-control") }}
+                            {% if form.start_date.errors %}<div class="text-danger small">{{ form.start_date.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">End Date (Optional)</label>
+                            {{ form.end_date(class="form-control") }}
+                            {% if form.end_date.errors %}<div class="text-danger small">{{ form.end_date.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Status *</label>
+                            {{ form.status(class="form-select") }}
+                            {% if form.status.errors %}<div class="text-danger small">{{ form.status.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12 mt-4 d-flex justify-content-between">
+                            <a href="{{ url_for('batches.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">Save Batch</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
