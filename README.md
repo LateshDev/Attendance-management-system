@@ -246,3 +246,4 @@ copy instance\attendance.db instance\backups\attendance_backup.db
 - [x] Production error handlers (403, 404, 500) that never expose raw stack traces.
 - [x] Production container runs as an unprivileged `appuser` (non-root).
 - [x] Health check endpoint (`/health`) for cloud monitoring.
+
