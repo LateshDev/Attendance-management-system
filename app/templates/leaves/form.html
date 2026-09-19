@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Apply for Leave{% endblock %}
+{% block page_title %}Leave Application{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-calendar2-plus me-2"></i>Submit Leave Application</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Batch *</label>
+                        {{ form.batch_id(class="form-select") }}
+                        {% if form.batch_id.errors %}<div class="text-danger small">{{ form.batch_id.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Student *</label>
+                        {{ form.student_id(class="form-select") }}
+                        {% if form.student_id.errors %}<div class="text-danger small">{{ form.student_id.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Start Date *</label>
+                            {{ form.start_date(class="form-control") }}
+                            {% if form.start_date.errors %}<div class="text-danger small">{{ form.start_date.errors[0] }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">End Date *</label>
+                            {{ form.end_date(class="form-control") }}
+                            {% if form.end_date.errors %}<div class="text-danger small">{{ form.end_date.errors[0] }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Reason for Absence *</label>
+                        {{ form.reason(class="form-control", rows="3", placeholder="e.g. Medical leave due to viral fever, family function, sports tournament") }}
+                        {% if form.reason.errors %}<div class="text-danger small">{{ form.reason.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('leaves.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
