@@ -205,3 +205,4 @@ def generate_pdf_report(title, metadata_dict, headers, rows, is_landscape=False,
     doc.build(elements)
     buffer.seek(0)
     return buffer.getvalue()
+
