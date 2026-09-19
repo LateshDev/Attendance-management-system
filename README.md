@@ -1,9 +1,16 @@
-# Batch-wise Attendance Management System (Attendo Pro)
+<p align="center">
+  <img src="docs/logo.png" alt="Attendo Pro Logo" width="160">
+</p>
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare)](https://sides-overnight-scenic-commissioner.trycloudflare.com)
-[![Python 3.12](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python)](https://python.org)
-[![Flask](https://img.shields.io/badge/Framework-Flask_3.1-black?style=for-the-badge&logo=flask)](https://palletsprojects.com/p/flask/)
-[![Tests Passing](https://img.shields.io/badge/Tests-17_Passing-success?style=for-the-badge&logo=pytest)](tests/)
+<h1 align="center">Attendo Pro</h1>
+<p align="center"><strong>Enterprise Batch-wise Attendance Management System</strong></p>
+
+<p align="center">
+  <a href="https://sides-overnight-scenic-commissioner.trycloudflare.com"><img src="https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare" alt="Live Demo"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python" alt="Python 3.12"></a>
+  <a href="https://palletsprojects.com/p/flask/"><img src="https://img.shields.io/badge/Framework-Flask_3.1-black?style=for-the-badge&logo=flask" alt="Flask"></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/Tests-17_Passing-success?style=for-the-badge&logo=pytest" alt="Tests"></a>
+</p>
 
 A complete, production-ready, mobile-first **Batch-wise Attendance Management System** built with **Python 3.12 Flask**, **SQLAlchemy**, **Flask-Login**, **Bootstrap 5**, **Chart.js**, **ReportLab (PDF)**, **openpyxl (Excel)**, and **Progressive Web App (PWA)** capabilities.
 

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.25" flood-color="#0f172a"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Rounded Shield -->
+  <path d="M60 8 C88 8 106 20 106 42 C106 74 60 110 60 110 C60 110 14 74 14 42 C14 20 32 8 60 8 Z"
+        fill="url(#shieldGrad)" filter="url(#dropShadow)" />
+
+  <!-- Inner Border Highlight -->
+  <path d="M60 14 C84 14 99 24 99 43 C99 70 60 102 60 102 C60 102 21 70 21 43 C21 24 36 14 60 14 Z"
+        fill="none" stroke="url(#glowGrad)" stroke-width="2.5" opacity="0.8" />
+
+  <!-- Book Pages / Register -->
+  <path d="M34 38 C44 34 56 37 60 41 C64 37 76 34 86 38 L86 72 C76 68 64 71 60 75 C56 71 44 68 34 72 Z"
+        fill="#ffffff" />
+  <path d="M60 41 L60 75" stroke="#cbd5e1" stroke-width="1.5" />
+
+  <!-- Grid Rows in Book (Attendance Dots / Lines) -->
+  <circle cx="42" cy="48" r="2.5" fill="#3b82f6" />
+  <line x1="48" y1="48" x2="54" y2="48" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+  <circle cx="42" cy="56" r="2.5" fill="#3b82f6" />
+  <line x1="48" y1="56" x2="54" y2="56" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+  <circle cx="42" cy="64" r="2.5" fill="#3b82f6" />
+  <line x1="48" y1="64" x2="54" y2="64" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+
+  <circle cx="68" cy="48" r="2" fill="#10b981" />
+  <circle cx="75" cy="48" r="2" fill="#10b981" />
+  <circle cx="82" cy="48" r="2" fill="#ef4444" />
+  <circle cx="68" cy="56" r="2" fill="#10b981" />
+  <circle cx="75" cy="56" r="2" fill="#f59e0b" />
+  <circle cx="82" cy="56" r="2" fill="#10b981" />
+
+  <!-- Prominent Checkmark Badge Overlay -->
+  <path d="M48 60 L58 72 L88 36"
+        fill="none" stroke="url(#checkGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"
+        filter="url(#dropShadow)" />
+</svg>
