@@ -425,3 +425,4 @@ def api_check_session():
         })
 
     return jsonify({'exists': False})
+
