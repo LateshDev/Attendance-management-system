@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Import Students{% endblock %}
+{% block page_title %}Import Students{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-file-earmark-arrow-up me-2"></i>Bulk Import Students</h5>
+                <a href="{{ url_for('students.download_template') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-download me-1"></i> Download Sample CSV
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small">
+                    Upload a CSV or Excel (.xlsx) file containing student records. If you select a batch below, all imported students will also be enrolled in that batch automatically.
+                </p>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Enroll in Batch (Optional)</label>
+                        {{ form.batch_id(class="form-select") }}
+                        <small class="text-muted">Optionally enroll all imported students into a selected batch.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Select File (CSV or Excel) *</label>
+                        {{ form.file(class="form-control") }}
+                        {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors[0] }}</div>{% endif %}
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-4 small">
+                        <h6 class="fw-bold text-dark mb-2">Required CSV Column Headers:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered bg-white mb-0 text-center">
+                                <thead>
+                                    <tr>
+                                        <th>roll_number</th>
+                                        <th>student_name</th>
+                                        <th>father_name</th>
+                                        <th>mother_name</th>
+                                        <th>mobile_number</th>
+                                        <th>email</th>
+                                        <th>date_of_birth</th>
+                                        <th>admission_date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>COM-101</td>
+                                        <td>Neha Sharma</td>
+                                        <td>Anil Sharma</td>
+                                        <td>Rita Sharma</td>
+                                        <td>9811223344</td>
+                                        <td>neha@example.com</td>
+                                        <td>2006-03-15</td>
+                                        <td>2026-08-01</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('students.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="bi bi-upload me-1"></i> Upload & Import
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

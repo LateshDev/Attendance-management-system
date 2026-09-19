@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Students Directory{% endblock %}
+{% block page_title %}Student Management{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Student Directory</h4>
+        <p class="text-muted small mb-0">Manage enrolled students, profiles, and attendance records</p>
+    </div>
+    {% if current_user.is_admin %}
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('students.bulk_import') }}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Import CSV/Excel
+        </a>
+        <a href="{{ url_for('students.create') }}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-1"></i> Add Student
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Search & Filter Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="{{ url_for('students.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Search by name, roll no, mobile, email...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="batch_id" class="form-select">
+                    <option value="">-- All Batches --</option>
+                    {% for b in batches %}
+                        <option value="{{ b.id }}" {% if batch_filter == b.id %}selected{% endif %}>{{ b.batch_code }} - {{ b.batch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                    <option value="Inactive" {% if status_filter == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="" {% if status_filter == '' %}selected{% endif %}>All</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary flex-grow-1"><i class="bi bi-filter"></i> Filter</button>
+                <a href="{{ url_for('students.index') }}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Students Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small">
+                <tr>
+                    <th class="ps-3">Roll No</th>
+                    <th>Student Name</th>
+                    <th>Batches</th>
+                    <th>Contact</th>
+                    <th>Attendance Rate</th>
+                    <th>Status</th>
+                    <th class="text-end pe-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in students %}
+                {% set stats = student_stats_map.get(st.id) %}
+                <tr>
+                    <td class="ps-3">
+                        <span class="badge bg-light text-primary border fw-bold"><code>{{ st.roll_number }}</code></span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('students.profile', student_id=st.id) }}" class="fw-semibold text-decoration-none text-dark hover-primary">
+                            {{ st.student_name }}
+                        </a>
+                        {% if st.email %}
+                            <div class="text-muted small" style="font-size: 0.75rem;">{{ st.email }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set st_batches = st.get_batches() %}
+                        {% for b in st_batches %}
+                            <span class="badge bg-secondary-subtle text-secondary border me-1" style="font-size: 0.75rem;">{{ b.batch_code }}</span>
+                        {% else %}
+                            <span class="text-muted small">Not Enrolled</span>
+                        {% endfor %}
+                    </td>
+                    <td class="small">{{ st.mobile_number or '-' }}</td>
+                    <td>
+                        {% if stats %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                                    <div class="progress-bar {% if stats.percentage >= threshold %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ stats.percentage }}%"></div>
+                                </div>
+                                <span class="badge {% if stats.percentage >= threshold %}bg-success{% else %}bg-danger{% endif %} fw-bold" style="font-size: 0.75rem;">
+                                    {{ stats.percentage }}%
+                                </span>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">{{ stats.present }}/{{ stats.total_classes }} classes</small>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if st.status == 'Active' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %}">
+                            {{ st.status }}
+                        </span>
+                    </td>
+                    <td class="text-end pe-3">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('students.profile', student_id=st.id) }}" class="btn btn-outline-secondary" title="View Profile">
+                                <i class="bi bi-person-vcard"></i>
+                            </a>
+                            {% if current_user.is_admin %}
+                            <a href="{{ url_for('students.edit', student_id=st.id) }}" class="btn btn-outline-secondary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('students.toggle_status', student_id=st.id) }}" class="d-inline" onsubmit="return confirm('Toggle status for this student?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn {% if st.status == 'Active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}" title="Toggle Active">
+                                    <i class="bi {% if st.status == 'Active' %}bi-slash-circle{% else %}bi-check-circle{% endif %}"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-people fs-1 text-secondary mb-2 d-block"></i>
+                        No students found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+        <small class="text-muted">Showing {{ pagination.items | length }} of {{ pagination.total }} students</small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('students.index', page=pagination.prev_num, search=search, batch_id=batch_filter, status=status_filter) }}">Previous</a>
+                </li>
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('students.index', page=p, search=search, batch_id=batch_filter, status=status_filter) }}">{{ p }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('students.index', page=pagination.next_num, search=search, batch_id=batch_filter, status=status_filter) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
