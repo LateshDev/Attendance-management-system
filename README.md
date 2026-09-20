@@ -6,7 +6,7 @@
 <p align="center"><strong>Enterprise Batch-wise Attendance Management System</strong></p>
 
 <p align="center">
-  <a href="https://sides-overnight-scenic-commissioner.trycloudflare.com"><img src="https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare" alt="Live Demo"></a>
+  <a href="https://attendance-management-system-1-s7xw.onrender.com"><img src="https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare" alt="Live Demo"></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python" alt="Python 3.12"></a>
   <a href="https://palletsprojects.com/p/flask/"><img src="https://img.shields.io/badge/Framework-Flask_3.1-black?style=for-the-badge&logo=flask" alt="Flask"></a>
   <a href="tests/"><img src="https://img.shields.io/badge/Tests-17_Passing-success?style=for-the-badge&logo=pytest" alt="Tests"></a>
