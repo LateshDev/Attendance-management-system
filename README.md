@@ -18,7 +18,7 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ### 🌐 Live Demo & Instant Access
 
-- **Public Live URL**: **[https://sides-overnight-scenic-commissioner.trycloudflare.com](https://sides-overnight-scenic-commissioner.trycloudflare.com)**
+- **Public Live URL**: **[ https://attendance-management-system-1-s7xw.onrender.com)**
 - **Admin Login**: `admin@example.com` / `Admin@12345`
 - **Teacher Login**: `teacher@example.com` / `Teacher@12345`
 
