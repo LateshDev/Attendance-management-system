@@ -6,7 +6,7 @@
 <p align="center"><strong>Enterprise Batch-wise Attendance Management System</strong></p>
 
 <p align="center">
-  <a href="https://attendance-management-system-1-s7xw.onrender.com"><img src="https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare" alt="Live Demo"></a>
+  <a href="https://attendance-management-system-7x2w.onrender.com"><img src="https://img.shields.io/badge/Live_Demo-Online-brightgreen?style=for-the-badge&logo=cloudflare" alt="Live Demo"></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python" alt="Python 3.12"></a>
   <a href="https://palletsprojects.com/p/flask/"><img src="https://img.shields.io/badge/Framework-Flask_3.1-black?style=for-the-badge&logo=flask" alt="Flask"></a>
   <a href="tests/"><img src="https://img.shields.io/badge/Tests-17_Passing-success?style=for-the-badge&logo=pytest" alt="Tests"></a>
@@ -18,7 +18,7 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ### 🌐 Live Demo & Instant Access
 
-- **Public Live URL**: **[ https://attendance-management-system-1-s7xw.onrender.com)**
+- **Public Live URL**: **[ https://attendance-management-system-7x2w.onrender.com)**
 - **Admin Login**: `admin@example.com` / `Admin@12345`
 - **Teacher Login**: `teacher@example.com` / `Teacher@12345`
 
@@ -40,7 +40,7 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 
 ## 📱 Instant Mobile App Installation (Android & iOS)
 
-> **Direct Mobile Install Link**: **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
+> **Direct Mobile Install Link**: **[https://attendance-management-system-7x2w.onrender.com/install](https://attendance-management-system-7x2w.onrender.com/install)**
 
 The application is engineered with **Progressive Web App (PWA)** architecture, allowing teachers and administrators to install and use it directly on **Android** and **iOS** devices as a standalone native app — with zero store downloads required.
 
@@ -50,14 +50,14 @@ The application is engineered with **Progressive Web App (PWA)** architecture, a
 
 ### 🤖 For Android Devices (Google Chrome)
 1. Open the Direct Install link in **Google Chrome**:
-   **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
+   **[https://attendance-management-system-7x2w.onrender.com/install](https://attendance-management-system-7x2w.onrender.com/install)**
 2. Tap the large green **"INSTALL ON ANDROID"** button.
 3. Confirm by tapping **"Install"** on Android's system dialog.
 4. The **Attendo Pro** app icon will be added to your home screen and app drawer, running full-screen without browser bars.
 
 ### 🍏 For iPhone & iPad (Apple Safari)
 1. Open the Direct Install link in **Apple Safari**:
-   **[https://sides-overnight-scenic-commissioner.trycloudflare.com/install](https://sides-overnight-scenic-commissioner.trycloudflare.com/install)**
+   **[https://attendance-management-system-7x2w.onrender.com/install](https://attendance-management-system-7x2w.onrender.com/install)**
 2. Tap the **Share** button at the bottom navigation bar (square icon with upward arrow `⎋`).
 3. Scroll down the options and select **"Add to Home Screen" (`➕`)**.
 4. Tap **"Add"** at the top right.
