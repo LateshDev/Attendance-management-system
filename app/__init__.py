@@ -89,6 +89,14 @@ def create_app(config_name='default'):
     app.register_blueprint(audit_bp, url_prefix='/audit')
     app.register_blueprint(settings_bp, url_prefix='/settings')
 
+    # Automatically ensure student user accounts exist on database startup
+    with app.app_context():
+        try:
+            from app.models import sync_all_student_accounts
+            sync_all_student_accounts()
+        except Exception:
+            pass
+
     # Error Handlers
     @app.errorhandler(403)
     def forbidden(e):
