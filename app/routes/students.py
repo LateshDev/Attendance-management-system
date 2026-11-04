@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import or_
 from openpyxl import load_workbook
 
-from app.models import db, Student, Batch, BatchStudent, AttendanceRecord, AttendanceSession, Setting
+from app.models import db, Student, Batch, BatchStudent, AttendanceRecord, AttendanceSession, Setting, LeaveRequest, Subject
 from app.forms import StudentForm, StudentImportForm
 from app.utils.decorators import admin_required, teacher_or_admin_required
 from app.utils.audit import log_action
@@ -15,7 +15,7 @@ students_bp = Blueprint('students', __name__)
 
 
 @students_bp.route('/')
-@login_required
+@teacher_or_admin_required
 def index():
     search = request.args.get('search', '').strip()
     batch_filter = request.args.get('batch_id', type=int)
@@ -104,6 +104,8 @@ def create():
             )
             db.session.add(bs)
 
+        # Create login account for the student
+        student.ensure_user_account()
         db.session.commit()
         log_action('CREATE_STUDENT', 'STUDENTS', student.id, None, f"Created student {student.roll_number}: {student.student_name}")
         flash(f'Student "{student.student_name}" created successfully.', 'success')
@@ -116,6 +118,14 @@ def create():
 @login_required
 def profile(student_id):
     student = Student.query.get_or_404(student_id)
+
+    # Student check: can only view their own profile, redirected to my_attendance
+    if current_user.is_student:
+        if current_user.student_profile and current_user.student_profile.id == student.id:
+            return redirect(url_for('students.my_attendance'))
+        flash('Access denied: You do not have permission to view other student profiles.', 'danger')
+        abort(403)
+
     batches = student.get_batches()
 
     # Teacher check: can only view if student belongs to their batch
@@ -198,6 +208,8 @@ def edit(student_id):
                 )
                 db.session.add(bs)
 
+        # Sync linked user account credentials
+        student.ensure_user_account()
         db.session.commit()
         log_action('UPDATE_STUDENT', 'STUDENTS', student.id, old_val, f"{student.roll_number}: {student.student_name}")
         flash(f'Student "{student.student_name}" updated successfully.', 'success')
@@ -211,6 +223,8 @@ def edit(student_id):
 def toggle_status(student_id):
     student = Student.query.get_or_404(student_id)
     student.status = 'Inactive' if student.status == 'Active' else 'Active'
+    if student.user:
+        student.user.is_active = (student.status == 'Active')
     db.session.commit()
     log_action('TOGGLE_STUDENT_STATUS', 'STUDENTS', student.id, None, f"Student {student.roll_number} changed to {student.status}")
     flash(f'Student "{student.student_name}" is now {student.status}.', 'info')
@@ -309,6 +323,8 @@ def bulk_import():
                     )
                     db.session.add(bs)
 
+                # Ensure login credentials for newly imported student
+                student.ensure_user_account()
                 success_count += 1
 
             db.session.commit()
@@ -339,3 +355,214 @@ def download_template():
         mimetype='text/csv',
         headers={"Content-Disposition": "attachment;filename=student_import_template.csv"}
     )
+
+
+@students_bp.route('/my-attendance')
+@login_required
+def my_attendance():
+    """
+    Dedicated dashboard for logged-in students to see their attendance,
+    subject breakdown, low attendance warnings, history, and leave statuses.
+    """
+    if not current_user.is_student:
+        if current_user.is_admin or current_user.is_teacher:
+            flash('Staff accounts should view and manage attendance from the main Dashboard.', 'info')
+            return redirect(url_for('dashboard.index'))
+        abort(403)
+
+    student = current_user.student_profile
+    if not student:
+        flash('No student profile found for this account. Please contact an administrator.', 'danger')
+        return redirect(url_for('auth.logout'))
+
+    threshold = float(Setting.get_value('low_attendance_threshold', 75.0))
+    enrolled_batches = student.get_batches()
+
+    # Overall Attendance Statistics
+    overall_stats = student.calculate_attendance_stats()
+
+    # Subject-wise attendance breakdown
+    subject_stats = student.calculate_subject_wise_stats(threshold=threshold)
+
+    # Filter params
+    subject_id = request.args.get('subject_id', type=int)
+    status_filter = request.args.get('status', '').strip()
+    start_date_str = request.args.get('start_date', '').strip()
+    end_date_str = request.args.get('end_date', '').strip()
+    page = request.args.get('page', 1, type=int)
+
+    # Build filtered query for attendance records
+    query = AttendanceRecord.query.filter_by(student_id=student.id).join(AttendanceSession)
+
+    if subject_id:
+        query = query.filter(AttendanceSession.subject_id == subject_id)
+
+    if status_filter in ['Present', 'Absent', 'Leave']:
+        query = query.filter(AttendanceRecord.status == status_filter)
+
+    start_date = None
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            query = query.filter(AttendanceSession.session_date >= start_date)
+        except ValueError:
+            pass
+
+    end_date = None
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            query = query.filter(AttendanceSession.session_date <= end_date)
+        except ValueError:
+            pass
+
+    pagination = query.order_by(
+        AttendanceSession.session_date.desc(), AttendanceSession.id.desc()
+    ).paginate(page=page, per_page=15, error_out=False)
+
+    # Available subjects for filtering (from enrolled batches)
+    available_subjects = []
+    seen_subj_ids = set()
+    for item in subject_stats:
+        if item['subject'].id not in seen_subj_ids:
+            seen_subj_ids.add(item['subject'].id)
+            available_subjects.append(item['subject'])
+
+    # Monthly breakdown for charts
+    current_year = date.today().year
+    monthly_data = []
+    for m in range(1, 13):
+        start_d = date(current_year, m, 1)
+        if m == 12:
+            end_d = date(current_year, 12, 31)
+        else:
+            end_d = date(current_year, m + 1, 1) - timedelta(days=1)
+
+        m_stats = student.calculate_attendance_stats(start_date=start_d, end_date=end_d)
+        if m_stats['total_classes'] > 0:
+            monthly_data.append({
+                'month_name': start_d.strftime("%b"),
+                'present': m_stats['present'],
+                'absent': m_stats['absent'],
+                'leave': m_stats['leave'],
+                'percentage': m_stats['percentage']
+            })
+
+    # Student's leave applications
+    my_leaves = LeaveRequest.query.filter_by(student_id=student.id).order_by(LeaveRequest.created_at.desc()).limit(5).all()
+
+    return render_template(
+        'students/my_attendance.html',
+        student=student,
+        batches=enrolled_batches,
+        overall_stats=overall_stats,
+        subject_stats=subject_stats,
+        threshold=threshold,
+        pagination=pagination,
+        records=pagination.items,
+        available_subjects=available_subjects,
+        subject_id=subject_id,
+        status_filter=status_filter,
+        start_date_str=start_date_str,
+        end_date_str=end_date_str,
+        monthly_data=monthly_data,
+        my_leaves=my_leaves,
+        today=date.today()
+    )
+
+
+@students_bp.route('/my-attendance/export')
+@login_required
+def export_my_attendance():
+    """
+    Allow a logged-in student to export their personal attendance report in CSV or PDF.
+    """
+    if not current_user.is_student or not current_user.student_profile:
+        abort(403)
+
+    student = current_user.student_profile
+    fmt = request.args.get('format', 'csv').lower()
+
+    records = AttendanceRecord.query.filter_by(student_id=student.id).join(AttendanceSession)\
+        .order_by(AttendanceSession.session_date.desc(), AttendanceSession.id.desc()).all()
+
+    stats = student.calculate_attendance_stats()
+
+    if fmt == 'csv':
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Student Name', student.student_name])
+        writer.writerow(['Roll Number', student.roll_number])
+        writer.writerow(['Overall Attendance', f"{stats['percentage']}%"])
+        writer.writerow(['Total Classes', stats['total_classes']])
+        writer.writerow(['Present', stats['present']])
+        writer.writerow(['Absent', stats['absent']])
+        writer.writerow(['Leave', stats['leave']])
+        writer.writerow([])
+        writer.writerow(['Date', 'Batch', 'Subject', 'Status', 'Teacher Remarks'])
+
+        for r in records:
+            writer.writerow([
+                r.session.session_date.strftime('%Y-%m-%d'),
+                r.session.batch.batch_name,
+                r.session.subject.subject_name,
+                r.status,
+                r.session.remarks or ''
+            ])
+
+        output.seek(0)
+        filename = f"Attendance_{student.roll_number}_{date.today().strftime('%Y%m%d')}.csv"
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+        )
+    elif fmt == 'pdf':
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, leftMargin=36, rightMargin=36, topMargin=36, bottomMargin=36)
+        elements = []
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=16, textColor=colors.HexColor('#1e40af'), spaceAfter=8)
+        elements.append(Paragraph(f"Attendance Report: {student.student_name} ({student.roll_number})", title_style))
+        elements.append(Paragraph(f"Generated on {date.today().strftime('%d %B %Y')} | Overall Attendance: <b>{stats['percentage']}%</b> (Present: {stats['present']}/{stats['total_classes']})", styles['Normal']))
+        elements.append(Spacer(1, 14))
+
+        table_data = [['Date', 'Batch', 'Subject', 'Status', 'Remarks']]
+        for r in records:
+            table_data.append([
+                r.session.session_date.strftime('%d-%m-%Y'),
+                r.session.batch.batch_code,
+                r.session.subject.subject_name,
+                r.status,
+                (r.session.remarks or '')[:30]
+            ])
+
+        if len(table_data) == 1:
+            table_data.append(['No attendance records found', '', '', '', ''])
+
+        t = Table(table_data, colWidths=[70, 75, 145, 65, 185])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 5),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+            ('FONTSIZE', (0, 1), (-1, -1), 8)
+        ]))
+        elements.append(t)
+        doc.build(elements)
+        buffer.seek(0)
+
+        filename = f"Attendance_{student.roll_number}_{date.today().strftime('%Y%m%d')}.pdf"
+        return send_file(buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
+
+    abort(400)
+

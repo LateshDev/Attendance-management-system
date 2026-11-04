@@ -12,7 +12,7 @@ batches_bp = Blueprint('batches', __name__)
 
 
 @batches_bp.route('/')
-@login_required
+@teacher_or_admin_required
 def index():
     search = request.args.get('search', '').strip()
     status_filter = request.args.get('status', 'Active').strip()
@@ -65,7 +65,7 @@ def create():
 
 
 @batches_bp.route('/<int:batch_id>')
-@login_required
+@teacher_or_admin_required
 def view(batch_id):
     batch = Batch.query.get_or_404(batch_id)
     if not check_batch_access(batch, current_user):

@@ -21,10 +21,10 @@
                     {{ form.hidden_tag() }}
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted small" for="login_id">Email or Username</label>
+                        <label class="form-label fw-semibold text-muted small" for="login_id">Email, Username, or Roll Number</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
-                            {{ form.login_id(class="form-control border-start-0 py-2", placeholder="admin@example.com", id="login_id", required=True) }}
+                            {{ form.login_id(class="form-control border-start-0 py-2", placeholder="e.g., COM-001 or admin@example.com", id="login_id", required=True) }}
                         </div>
                         {% if form.login_id.errors %}
                             <div class="text-danger small mt-1">{{ form.login_id.errors[0] }}</div>
@@ -70,9 +70,16 @@
                         <span class="badge bg-primary text-uppercase">Admin</span>
                         <code class="user-select-all">admin@example.com</code> / <code class="user-select-all">Admin@12345</code>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center small">
+                    <div class="d-flex justify-content-between align-items-center mb-1 small">
                         <span class="badge bg-secondary text-uppercase">Teacher</span>
                         <code class="user-select-all">teacher@example.com</code> / <code class="user-select-all">Teacher@12345</code>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <span class="badge bg-success text-uppercase">Student</span>
+                        <code class="user-select-all">COM-001</code> / <code class="user-select-all">Student@12345</code>
+                    </div>
+                    <div class="text-muted mt-2 pt-2 border-top" style="font-size: 0.72rem;">
+                        <i class="bi bi-info-circle me-1"></i> All students can sign in using their <b>Roll Number</b> or registered email with password <code>Student@12345</code>.
                     </div>
                 </div>
             </div>

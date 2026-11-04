@@ -17,7 +17,8 @@ def app():
         # Seed roles
         admin_role = Role(name='ADMIN', description='Administrator')
         teacher_role = Role(name='TEACHER', description='Teacher')
-        db.session.add_all([admin_role, teacher_role])
+        student_role = Role(name='STUDENT', description='Student')
+        db.session.add_all([admin_role, teacher_role, student_role])
         db.session.commit()
 
         # Seed users
@@ -72,6 +73,13 @@ def teacher_client(app):
 
 
 @pytest.fixture
+def student_client(app, sample_data):
+    c = app.test_client()
+    c.post('/auth/login', data={'login_id': 'ST-001', 'password': 'Student@12345'}, follow_redirects=True)
+    return c
+
+
+@pytest.fixture
 def sample_data(app):
     with app.app_context():
         teacher = User.query.filter_by(username='teacher').first()
@@ -111,6 +119,9 @@ def sample_data(app):
         )
         db.session.add_all([student1, student2])
         db.session.flush()
+
+        student1.ensure_user_account('Student@12345')
+        student2.ensure_user_account('Student@12345')
 
         bs1 = BatchStudent(batch_id=batch.id, student_id=student1.id, status='Active')
         bs2 = BatchStudent(batch_id=batch.id, student_id=student2.id, status='Active')

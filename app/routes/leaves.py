@@ -18,7 +18,11 @@ def index():
 
     query = LeaveRequest.query.join(Student).join(Batch)
 
-    if current_user.is_teacher:
+    if current_user.is_student:
+        if not current_user.student_profile:
+            abort(403)
+        query = query.filter(LeaveRequest.student_id == current_user.student_profile.id)
+    elif current_user.is_teacher:
         teacher_batches = Batch.query.filter_by(teacher_id=current_user.id).all()
         t_batch_ids = [b.id for b in teacher_batches]
         query = query.filter(LeaveRequest.batch_id.in_(t_batch_ids))
@@ -30,9 +34,12 @@ def index():
 
     leaves = query.order_by(LeaveRequest.created_at.desc()).all()
 
-    batches = Batch.query.filter_by(status='Active').order_by(Batch.batch_name).all()
-    if current_user.is_teacher:
-        batches = [b for b in batches if b.teacher_id == current_user.id]
+    if current_user.is_student:
+        batches = current_user.student_profile.get_batches()
+    else:
+        batches = Batch.query.filter_by(status='Active').order_by(Batch.batch_name).all()
+        if current_user.is_teacher:
+            batches = [b for b in batches if b.teacher_id == current_user.id]
 
     return render_template('leaves/index.html', leaves=leaves, batches=batches, status_filter=status_filter, batch_filter=batch_filter)
 
@@ -40,6 +47,39 @@ def index():
 @leaves_bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def create():
+    if current_user.is_student:
+        student = current_user.student_profile
+        if not student:
+            abort(403)
+        student_batches = student.get_batches()
+        if not student_batches:
+            flash('You are not currently enrolled in any active batch to apply for leave.', 'warning')
+            return redirect(url_for('students.my_attendance'))
+
+        form = LeaveRequestForm()
+        form.batch_id.choices = [(b.id, f"{b.batch_code} - {b.batch_name}") for b in student_batches]
+        form.student_id.choices = [(student.id, f"{student.roll_number} - {student.student_name}")]
+        if request.method == 'GET':
+            form.student_id.data = student.id
+
+        if form.validate_on_submit():
+            leave = LeaveRequest(
+                student_id=student.id,
+                batch_id=form.batch_id.data,
+                start_date=form.start_date.data,
+                end_date=form.end_date.data,
+                reason=form.reason.data.strip(),
+                status='Pending'
+            )
+            db.session.add(leave)
+            db.session.commit()
+
+            log_action('CREATE_LEAVE_REQUEST', 'LEAVES', leave.id, None, f"Student {student.roll_number} applied for leave ({leave.start_date} to {leave.end_date})")
+            flash('Your leave application has been submitted successfully.', 'success')
+            return redirect(url_for('students.my_attendance'))
+
+        return render_template('leaves/form.html', form=form, title='Apply for Leave', is_student=True, student=student)
+
     form = LeaveRequestForm()
 
     batches = Batch.query.filter_by(status='Active').order_by(Batch.batch_name).all()
@@ -69,7 +109,7 @@ def create():
         flash(f'Leave application submitted for "{student.student_name}".', 'success')
         return redirect(url_for('leaves.index'))
 
-    return render_template('leaves/form.html', form=form, title='Apply for Leave')
+    return render_template('leaves/form.html', form=form, title='Apply for Leave', is_student=False)
 
 
 @leaves_bp.route('/<int:leave_id>/review', methods=['GET', 'POST'])

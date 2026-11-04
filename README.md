@@ -21,6 +21,7 @@ A complete, production-ready, mobile-first **Batch-wise Attendance Management Sy
 - **Public Live URL**: **[ https://attendance-management-system-7x2w.onrender.com)**
 - **Admin Login**: `admin@example.com` / `Admin@12345`
 - **Teacher Login**: `teacher@example.com` / `Teacher@12345`
+- **Student Login**: `COM-001` (or `rahul.s@example.com`) / `Student@12345` *(All students have roll number login)*
 
 ---
 
@@ -155,11 +156,12 @@ attendance_system/
 
 The seed script creates realistic demo users:
 
-| Role | Email | Password | Access Level |
+| Role | Email / Login ID | Password | Access Level |
 |---|---|---|---|
 | **Administrator** | `admin@example.com` | `Admin@12345` | Unrestricted (all batches, reports, users, settings, audit) |
 | **Teacher** | `teacher@example.com` | `Teacher@12345` | Assigned batches (Commerce Batch A & B), mark attendance, view history |
 | **Teacher 2** | `teacher2@example.com` | `Teacher@12345` | Assigned batches (Computer Science Batch A) |
+| **Student** | `COM-001` or `rahul.s@example.com` | `Student@12345` | Personal attendance stats, subject-wise breakdown, leave requests, export |
 
 > [!IMPORTANT]
 > Change the default administrator and teacher passwords before deploying into a live production environment.

@@ -10,7 +10,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False, index=True)  # 'ADMIN', 'TEACHER'
+    name = db.Column(db.String(50), unique=True, nullable=False, index=True)  # 'ADMIN', 'TEACHER', 'STUDENT'
     description = db.Column(db.String(200), nullable=True)
 
     users = db.relationship('User', backref='role', lazy='dynamic')
@@ -51,6 +51,14 @@ class User(UserMixin, db.Model):
     @property
     def is_teacher(self):
         return self.role is not None and self.role.name == 'TEACHER'
+
+    @property
+    def is_student(self):
+        return self.role is not None and self.role.name == 'STUDENT'
+
+    @property
+    def student(self):
+        return getattr(self, 'student_profile', None)
 
     @property
     def avatar_initials(self):
@@ -113,10 +121,12 @@ class Student(db.Model):
     date_of_birth = db.Column(db.Date, nullable=True)
     admission_date = db.Column(db.Date, nullable=False, default=date.today)
     status = db.Column(db.String(20), default='Active', nullable=False)  # 'Active', 'Inactive'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    user = db.relationship('User', backref=db.backref('student_profile', uselist=False))
     enrollments = db.relationship('BatchStudent', backref='student', lazy='dynamic', cascade='all, delete-orphan')
     attendance_records = db.relationship('AttendanceRecord', backref='student', lazy='dynamic', cascade='all, delete-orphan')
     leave_requests = db.relationship('LeaveRequest', backref='student', lazy='dynamic', cascade='all, delete-orphan')
@@ -167,6 +177,117 @@ class Student(db.Model):
             'leave': leave_count,
             'percentage': percentage
         }
+
+    def calculate_subject_wise_stats(self, threshold=75.0):
+        """
+        Calculate subject-wise attendance statistics with classes needed or bunk margin.
+        """
+        import math
+        batches = self.get_batches()
+        results = []
+        seen_subjects = set()
+
+        for batch in batches:
+            batch_subjs = BatchSubject.query.filter_by(batch_id=batch.id).all()
+            for bs in batch_subjs:
+                subj = bs.subject
+                if not subj or subj.status != 'Active':
+                    continue
+                key = (batch.id, subj.id)
+                if key in seen_subjects:
+                    continue
+                seen_subjects.add(key)
+
+                stats = self.calculate_attendance_stats(batch_id=batch.id, subject_id=subj.id)
+                total = stats['total_classes']
+                present = stats['present']
+                pct = stats['percentage']
+
+                # Target threshold calculations
+                if total == 0:
+                    classes_needed = 0
+                    bunk_margin = 0
+                elif pct < threshold:
+                    t_frac = threshold / 100.0
+                    needed = math.ceil((t_frac * total - present) / (1.0 - t_frac)) if (1.0 - t_frac) > 0 else 0
+                    classes_needed = max(0, int(needed))
+                    bunk_margin = 0
+                else:
+                    t_frac = threshold / 100.0
+                    margin = math.floor((present - t_frac * total) / t_frac) if t_frac > 0 else 0
+                    classes_needed = 0
+                    bunk_margin = max(0, int(margin))
+
+                teacher = User.query.get(bs.teacher_id) if bs.teacher_id else batch.teacher
+
+                results.append({
+                    'batch': batch,
+                    'subject': subj,
+                    'teacher': teacher,
+                    'stats': stats,
+                    'classes_needed': classes_needed,
+                    'bunk_margin': bunk_margin,
+                    'is_low': (total > 0 and pct < threshold)
+                })
+
+        return results
+
+    def ensure_user_account(self, default_password='Student@12345'):
+        """
+        Ensure this student has an associated User account with role STUDENT.
+        Sets username to lowercase roll_number and connects user_id.
+        """
+        student_role = Role.query.filter_by(name='STUDENT').first()
+        if not student_role:
+            student_role = Role(
+                name='STUDENT',
+                description='Student account with access to personal attendance records and leave applications'
+            )
+            db.session.add(student_role)
+            db.session.flush()
+
+        if self.user:
+            self.user.full_name = self.student_name
+            self.user.phone = self.mobile_number
+            self.user.is_active = (self.status == 'Active')
+            if not self.user.role_id:
+                self.user.role_id = student_role.id
+            return self.user
+
+        # Generate a unique username based on roll_number
+        base_username = self.roll_number.strip().lower().replace(' ', '_')
+        username = base_username
+        existing_u = User.query.filter_by(username=username).first()
+        if existing_u and existing_u.id != self.user_id:
+            username = f"{base_username}_{self.id or 1}"
+
+        # Email determination
+        if self.email and self.email.strip():
+            candidate_email = self.email.strip().lower()
+            existing_email = User.query.filter_by(email=candidate_email).first()
+            if existing_email and existing_email.id != self.user_id:
+                candidate_email = f"{base_username}@student.local"
+        else:
+            candidate_email = f"{base_username}@student.local"
+
+        existing_cand = User.query.filter_by(email=candidate_email).first()
+        if existing_cand and existing_cand.id != self.user_id:
+            candidate_email = f"{base_username}_{self.id or 1}@student.local"
+
+        user = User(
+            email=candidate_email,
+            username=username,
+            full_name=self.student_name,
+            phone=self.mobile_number,
+            is_active=(self.status == 'Active'),
+            role_id=student_role.id
+        )
+        user.set_password(default_password)
+        db.session.add(user)
+        db.session.flush()
+
+        self.user_id = user.id
+        return user
 
     def __repr__(self):
         return f"<Student {self.roll_number}: {self.student_name}>"
@@ -365,3 +486,17 @@ class Setting(db.Model):
 
     def __repr__(self):
         return f"<Setting {self.key}={self.value}>"
+
+
+def sync_all_student_accounts(default_password='Student@12345'):
+    """Synchronize user accounts for all student records in the database."""
+    students = Student.query.all()
+    updated = 0
+    for st in students:
+        if not st.user_id or not st.user:
+            st.ensure_user_account(default_password=default_password)
+            updated += 1
+    if updated > 0:
+        db.session.commit()
+    return updated
+

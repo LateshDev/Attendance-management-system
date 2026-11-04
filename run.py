@@ -21,6 +21,15 @@ def seed_db_command():
     seed.seed()
 
 
+@app.cli.command('sync-students')
+def sync_students_command():
+    """Ensure all students have login accounts."""
+    with app.app_context():
+        from app.models import sync_all_student_accounts
+        count = sync_all_student_accounts()
+        print(f"Synchronized {count} student accounts.")
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', '1') == '1'

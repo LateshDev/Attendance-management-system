@@ -40,13 +40,34 @@
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar">
             <div class="sidebar-header">
-                <a href="{{ url_for('dashboard.index') }}" class="sidebar-brand">
+                <a href="{{ url_for('students.my_attendance') if current_user.is_student else url_for('dashboard.index') }}" class="sidebar-brand">
                     <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="Attendo Pro Logo" class="app-logo-img">
                     <span>Attendo Pro</span>
                 </a>
             </div>
 
             <nav class="sidebar-nav">
+                {% if current_user.is_student %}
+                <div class="nav-section-title">Student Portal</div>
+                <a href="{{ url_for('students.my_attendance') }}" class="sidebar-link {% if request.endpoint == 'students.my_attendance' %}active{% endif %}">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>My Attendance</span>
+                </a>
+                <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if 'leaves' in request.endpoint and request.endpoint != 'leaves.create' %}active{% endif %}">
+                    <i class="bi bi-envelope-paper-fill"></i>
+                    <span>My Leave Requests</span>
+                </a>
+                <a href="{{ url_for('leaves.create') }}" class="sidebar-link {% if request.endpoint == 'leaves.create' %}active{% endif %}">
+                    <i class="bi bi-calendar-plus-fill"></i>
+                    <span>Apply for Leave</span>
+                </a>
+
+                <div class="nav-section-title">Account</div>
+                <a href="{{ url_for('auth.change_password') }}" class="sidebar-link {% if request.endpoint == 'auth.change_password' %}active{% endif %}">
+                    <i class="bi bi-key-fill"></i>
+                    <span>Change Password</span>
+                </a>
+                {% else %}
                 <div class="nav-section-title">Core</div>
                 <a href="{{ url_for('dashboard.index') }}" class="sidebar-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
                     <i class="bi bi-grid-1x2-fill"></i>
@@ -112,6 +133,7 @@
                     <span>System Settings</span>
                 </a>
                 {% endif %}
+                {% endif %}
             </nav>
 
             <!-- PWA Install Button -->
@@ -129,8 +151,12 @@
                     </div>
                     <div class="overflow-hidden">
                         <div class="text-truncate fw-semibold text-white small">{{ current_user.full_name }}</div>
-                        <span class="badge {% if current_user.is_admin %}bg-primary{% else %}bg-secondary{% endif %} text-uppercase" style="font-size: 0.65rem;">
-                            {{ current_user.role.name }}
+                        <span class="badge {% if current_user.is_admin %}bg-primary{% elif current_user.is_student %}bg-success{% else %}bg-secondary{% endif %} text-uppercase" style="font-size: 0.65rem;">
+                            {% if current_user.is_student and current_user.student_profile %}
+                                STUDENT &bull; {{ current_user.student_profile.roll_number }}
+                            {% else %}
+                                {{ current_user.role.name }}
+                            {% endif %}
                         </span>
                     </div>
                 </div>

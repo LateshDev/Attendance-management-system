@@ -31,6 +31,20 @@ def teacher_or_admin_required(f):
     return decorated_function
 
 
+def student_required(f):
+    """Decorator to enforce Student-only access on routes."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Please log in to access this page.", "warning")
+            return redirect(url_for('auth.login', next=request.url))
+        if not current_user.is_student:
+            flash("Access denied: Student access required.", "danger")
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def check_batch_access(batch, user):
     """Verify if user has permission to view or mark attendance for a batch."""
     if user.is_admin:

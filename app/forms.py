@@ -10,7 +10,7 @@ from app.models import User, Student, Batch, Subject
 
 
 class LoginForm(FlaskForm):
-    login_id = StringField('Email or Username', validators=[DataRequired(), Length(max=120)])
+    login_id = StringField('Email, Username, or Roll Number', validators=[DataRequired(), Length(max=120)])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
@@ -134,6 +134,18 @@ class LeaveRequestForm(FlaskForm):
     end_date = DateField('End Date', default=date.today, validators=[DataRequired()])
     reason = TextAreaField('Reason for Leave', validators=[DataRequired(), Length(min=5, max=1000)])
     submit = SubmitField('Submit Leave Request')
+
+    def validate_end_date(self, field):
+        if self.start_date.data and field.data and field.data < self.start_date.data:
+            raise ValidationError('End date cannot be earlier than start date.')
+
+
+class StudentLeaveApplyForm(FlaskForm):
+    batch_id = SelectField('Select Batch', coerce=int, validators=[DataRequired()])
+    start_date = DateField('Start Date', default=date.today, validators=[DataRequired()])
+    end_date = DateField('End Date', default=date.today, validators=[DataRequired()])
+    reason = TextAreaField('Reason for Leave', validators=[DataRequired(), Length(min=5, max=1000)])
+    submit = SubmitField('Submit Leave Application')
 
     def validate_end_date(self, field):
         if self.start_date.data and field.data and field.data < self.start_date.data:

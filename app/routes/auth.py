@@ -13,6 +13,8 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        if current_user.is_student:
+            return redirect(url_for('students.my_attendance'))
         return redirect(url_for('dashboard.index'))
 
     form = LoginForm()
@@ -32,7 +34,10 @@ def login():
             flash(f'Welcome back, {user.full_name}!', 'success')
             next_page = request.args.get('next')
             if not next_page or not next_page.startswith('/'):
-                next_page = url_for('dashboard.index')
+                if user.is_student:
+                    next_page = url_for('students.my_attendance')
+                else:
+                    next_page = url_for('dashboard.index')
             return redirect(next_page)
         else:
             flash('Invalid email/username or password. Please try again.', 'danger')

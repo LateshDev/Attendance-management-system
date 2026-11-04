@@ -28,6 +28,11 @@ def seed():
             teacher_role = Role(name='TEACHER', description='Academic staff with batch attendance marking access')
             db.session.add(teacher_role)
 
+        student_role = Role.query.filter_by(name='STUDENT').first()
+        if not student_role:
+            student_role = Role(name='STUDENT', description='Student account with access to personal attendance records and leave applications')
+            db.session.add(student_role)
+
         db.session.commit()
 
         # 2. USERS (Admin & Teachers)
@@ -194,6 +199,9 @@ def seed():
                     status='Active'
                 )
                 db.session.add(bs)
+            
+            # Ensure student login account exists
+            st.ensure_user_account('Student@12345')
             created_students[roll] = st
 
         db.session.commit()
@@ -312,6 +320,8 @@ def seed():
         print("DATABASE SEEDED SUCCESSFULLY!")
         print("Admin:   admin@example.com   / Admin@12345")
         print("Teacher: teacher@example.com / Teacher@12345")
+        print("Student: COM-001 (or rahul.s@example.com) / Student@12345")
+        print("         (All 16 students have login with their roll number)")
         print("=" * 60)
 
 if __name__ == '__main__':

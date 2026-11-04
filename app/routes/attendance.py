@@ -220,7 +220,7 @@ def edit_session(session_id):
 # ==========================================
 
 @attendance_bp.route('/history')
-@login_required
+@teacher_or_admin_required
 def history():
     batch_filter = request.args.get('batch_id', type=int)
     subject_filter = request.args.get('subject_id', type=int)
@@ -288,7 +288,7 @@ def history():
 # ==========================================
 
 @attendance_bp.route('/monthly')
-@login_required
+@teacher_or_admin_required
 def monthly():
     today = date.today()
     month = request.args.get('month', today.month, type=int)
@@ -392,7 +392,7 @@ def monthly():
 # ==========================================
 
 @attendance_bp.route('/api/check-session')
-@login_required
+@teacher_or_admin_required
 def api_check_session():
     """Returns JSON check whether session exists for batch+subject+date."""
     batch_id = request.args.get('batch_id', type=int)

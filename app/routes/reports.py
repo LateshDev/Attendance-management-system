@@ -16,7 +16,7 @@ reports_bp = Blueprint('reports', __name__)
 
 
 @reports_bp.route('/')
-@login_required
+@teacher_or_admin_required
 def index():
     threshold = float(Setting.get_value('low_attendance_threshold', 75.0))
     return render_template('reports/index.html', threshold=threshold)
@@ -27,7 +27,7 @@ def index():
 # ==========================================
 
 @reports_bp.route('/batch')
-@login_required
+@teacher_or_admin_required
 def batch_report():
     batch_id = request.args.get('batch_id', type=int)
     subject_id = request.args.get('subject_id', type=int)
@@ -167,7 +167,7 @@ def batch_report():
 # ==========================================
 
 @reports_bp.route('/low-attendance')
-@login_required
+@teacher_or_admin_required
 def low_attendance():
     batch_id = request.args.get('batch_id', type=int)
     threshold_input = request.args.get('threshold', type=float)
@@ -248,7 +248,7 @@ def low_attendance():
 # ==========================================
 
 @reports_bp.route('/daily')
-@login_required
+@teacher_or_admin_required
 def daily_report():
     today_str = date.today().strftime('%Y-%m-%d')
     date_str = request.args.get('session_date', today_str).strip()
@@ -321,7 +321,7 @@ def daily_report():
 # ==========================================
 
 @reports_bp.route('/subjects')
-@login_required
+@teacher_or_admin_required
 def subject_report():
     batch_id = request.args.get('batch_id', type=int)
     batches = Batch.query.filter_by(status='Active').order_by(Batch.batch_name).all()

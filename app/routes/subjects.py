@@ -4,14 +4,14 @@ from sqlalchemy import or_
 
 from app.models import db, Subject
 from app.forms import SubjectForm
-from app.utils.decorators import admin_required
+from app.utils.decorators import admin_required, teacher_or_admin_required
 from app.utils.audit import log_action
 
 subjects_bp = Blueprint('subjects', __name__)
 
 
 @subjects_bp.route('/')
-@login_required
+@teacher_or_admin_required
 def index():
     search = request.args.get('search', '').strip()
     status_filter = request.args.get('status', 'Active').strip()

@@ -20,11 +20,19 @@
                         {% if form.batch_id.errors %}<div class="text-danger small">{{ form.batch_id.errors[0] }}</div>{% endif %}
                     </div>
 
+                    {% if is_student %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Applicant</label>
+                            <input type="text" class="form-control bg-light" value="{{ student.student_name }} ({{ student.roll_number }})" readonly>
+                            <div class="d-none">{{ form.student_id() }}</div>
+                        </div>
+                    {% else %}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Student *</label>
                         {{ form.student_id(class="form-select") }}
                         {% if form.student_id.errors %}<div class="text-danger small">{{ form.student_id.errors[0] }}</div>{% endif %}
                     </div>
+                    {% endif %}
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -47,7 +55,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('leaves.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="{{ url_for('students.my_attendance') if current_user.is_student else url_for('leaves.index') }}" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary px-4 fw-semibold">Submit Application</button>
                     </div>
                 </form>
