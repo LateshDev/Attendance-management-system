@@ -117,6 +117,10 @@ def create_app(config_name='default'):
 
     @app.errorhandler(500)
     def internal_server_error(e):
-        return render_template('errors/500.html'), 500
+        import traceback
+        orig = getattr(e, 'original_exception', e)
+        tb = ''.join(traceback.format_exception(type(orig), orig, orig.__traceback__)) if hasattr(orig, '__traceback__') and orig.__traceback__ else traceback.format_exc()
+        print("INTERNAL SERVER ERROR 500:\n" + tb)
+        return f"<div style='font-family:sans-serif;padding:30px;background:#fff5f5;border:2px solid #e53e3e;border-radius:8px;'><h2 style='color:#c53030;'>Internal Server Error (500)</h2><p><b>Exception:</b> {type(orig).__name__}: {orig}</p><pre style='background:#2d3748;color:#f7fafc;padding:15px;border-radius:6px;overflow-x:auto;'>{tb}</pre></div>", 500
 
     return app
