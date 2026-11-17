@@ -30,6 +30,10 @@ class Config:
     # Default low attendance threshold
     DEFAULT_LOW_ATTENDANCE_THRESHOLD = 75.0
 
+    @classmethod
+    def init_app(cls, app):
+        pass
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
