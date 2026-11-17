@@ -34,7 +34,7 @@ def create_app(config_name='default'):
     # Health Check Endpoint
     @app.route('/health')
     def health():
-        return jsonify({"status": "ok"}), 200
+        return jsonify({"status": "ok", "version": "v1.0.2-migrated"}), 200
 
     # Mobile App Install Landing Page
     @app.route('/install')
@@ -116,6 +116,7 @@ def create_app(config_name='default'):
         return render_template('errors/404.html'), 404
 
     @app.errorhandler(500)
+    @app.errorhandler(Exception)
     def internal_server_error(e):
         import traceback
         orig = getattr(e, 'original_exception', e)
