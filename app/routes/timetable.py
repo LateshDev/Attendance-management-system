@@ -181,3 +181,4 @@ def hod_approve(req_id):
 
     db.session.commit()
     return redirect(url_for('timetable.corrections_list'))
+

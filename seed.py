@@ -4,17 +4,14 @@ Populates the database with roles, admin/HOD/teacher accounts, B.Tech CSE 3rd Ye
 official subjects, the complete Monday-Saturday timetable, students, and demo attendance.
 """
 from datetime import date, time, timedelta
-from app import create_app
 from app.models import (
     db, Role, User, Batch, Subject, BatchSubject, Student, BatchStudent,
     AttendanceSession, AttendanceRecord, LeaveRequest, Setting, AuditLog,
     TimetableVersion, Timetable
 )
 
-app = create_app('development')
-
-def seed():
-    with app.app_context():
+def seed(target_app=None):
+    def run_seed():
         print("Ensuring all database tables exist...")
         db.create_all()
 
@@ -308,5 +305,13 @@ def seed():
         db.session.commit()
         print("Database seeding completed with official B.Tech CSE V(C) Timetable & Faculty!")
 
+    if target_app:
+        with target_app.app_context():
+            run_seed()
+    else:
+        run_seed()
+
 if __name__ == '__main__':
-    seed()
+    from app import create_app
+    standalone_app = create_app('development')
+    seed(standalone_app)
