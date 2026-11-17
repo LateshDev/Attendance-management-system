@@ -61,7 +61,7 @@
                     <i class="bi bi-pencil-square text-warning"></i>
                     <span>Correction Requests</span>
                 </a>
-                <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if 'leaves' in request.endpoint and request.endpoint != 'leaves.create' %}active{% endif %}">
+                <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if request.endpoint and 'leaves' in request.endpoint and request.endpoint != 'leaves.create' %}active{% endif %}">
                     <i class="bi bi-envelope-paper-fill"></i>
                     <span>My Leave Requests</span>
                 </a>
@@ -103,19 +103,19 @@
                 </a>
 
                 <div class="nav-section-title">Academic</div>
-                <a href="{{ url_for('batches.index') }}" class="sidebar-link {% if 'batches' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('batches.index') }}" class="sidebar-link {% if request.endpoint and 'batches' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-collection-fill"></i>
                     <span>Batches</span>
                 </a>
-                <a href="{{ url_for('students.index') }}" class="sidebar-link {% if 'students' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('students.index') }}" class="sidebar-link {% if request.endpoint and 'students' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-people-fill"></i>
                     <span>Students</span>
                 </a>
-                <a href="{{ url_for('subjects.index') }}" class="sidebar-link {% if 'subjects' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('subjects.index') }}" class="sidebar-link {% if request.endpoint and 'subjects' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-journal-bookmark-fill"></i>
                     <span>Subjects</span>
                 </a>
-                <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if 'leaves' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if request.endpoint and 'leaves' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-envelope-paper-fill"></i>
                     <span>Leave Requests</span>
                 </a>
@@ -140,11 +140,11 @@
                     <i class="bi bi-person-gear"></i>
                     <span>Users & Staff</span>
                 </a>
-                <a href="{{ url_for('audit.index') }}" class="sidebar-link {% if 'audit' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('audit.index') }}" class="sidebar-link {% if request.endpoint and 'audit' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-shield-check"></i>
                     <span>Audit Logs</span>
                 </a>
-                <a href="{{ url_for('settings.index') }}" class="sidebar-link {% if 'settings' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('settings.index') }}" class="sidebar-link {% if request.endpoint and 'settings' in request.endpoint %}active{% endif %}">
                     <i class="bi bi-gear-fill"></i>
                     <span>System Settings</span>
                 </a>

@@ -305,6 +305,10 @@ def seed(target_app=None):
                 # Ensure student user account
                 st.ensure_user_account('Student@12345')
 
+        # Ensure all students have user accounts linked
+        from app.models import sync_all_student_accounts
+        sync_all_student_accounts('Student@12345')
+
         db.session.commit()
         print("Database seeding completed with official B.Tech CSE V(C) Timetable & Faculty!")
 

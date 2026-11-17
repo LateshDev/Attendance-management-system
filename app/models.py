@@ -575,25 +575,84 @@ class CorrectionRequest(db.Model):
 
 
 def auto_migrate_schema():
-    """Ensure newly added columns and tables are migrated to existing databases (e.g. Render PostgreSQL)."""
+    """Ensure newly added columns and tables are migrated to existing databases (PostgreSQL & SQLite)."""
     from sqlalchemy import text
-    # 1. PostgreSQL (default on Render)
     try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS initials VARCHAR(10);"))
-            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_initials ON users (initials);"))
-            print("Auto-migration: Ensured 'initials' column exists in users table (PostgreSQL).")
-        return
-    except Exception as pg_err:
-        print("Auto-migration (PostgreSQL attempt) notice:", pg_err)
+        dialect = db.engine.dialect.name
+    except Exception:
+        dialect = 'postgresql'
 
-    # 2. SQLite fallback (local development / testing)
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN initials VARCHAR(10);"))
-            print("Auto-migration: Added 'initials' column to users table (SQLite).")
-    except Exception as sqlite_err:
-        print("Auto-migration (SQLite attempt) notice:", sqlite_err)
+    print(f"Auto-migration: Starting schema migration pass for dialect '{dialect}'...")
+
+    if dialect == 'postgresql':
+        pg_statements = [
+            ("users.initials", "ALTER TABLE users ADD COLUMN IF NOT EXISTS initials VARCHAR(10);"),
+            ("users.ix_users_initials", "CREATE INDEX IF NOT EXISTS ix_users_initials ON users (initials);"),
+            ("students.user_id", "ALTER TABLE students ADD COLUMN IF NOT EXISTS user_id INTEGER;"),
+            ("students.ix_students_user_id", "CREATE INDEX IF NOT EXISTS ix_students_user_id ON students (user_id);"),
+            ("students.fk_students_user_id", """
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint WHERE conname = 'fk_students_user_id'
+                    ) THEN
+                        ALTER TABLE students
+                            ADD CONSTRAINT fk_students_user_id
+                            FOREIGN KEY (user_id) REFERENCES users(id)
+                            ON DELETE SET NULL;
+                    END IF;
+                END $$;
+            """),
+            ("batches.course_name", "ALTER TABLE batches ADD COLUMN IF NOT EXISTS course_name VARCHAR(120);"),
+            ("batches.teacher_id", "ALTER TABLE batches ADD COLUMN IF NOT EXISTS teacher_id INTEGER;"),
+            ("batches.status", "ALTER TABLE batches ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Active';"),
+            ("subjects.status", "ALTER TABLE subjects ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Active';"),
+            ("batch_students.status", "ALTER TABLE batch_students ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Active';"),
+            ("batch_students.roll_number_in_batch", "ALTER TABLE batch_students ADD COLUMN IF NOT EXISTS roll_number_in_batch VARCHAR(50);"),
+            ("leave_requests.reviewed_by_id", "ALTER TABLE leave_requests ADD COLUMN IF NOT EXISTS reviewed_by_id INTEGER;"),
+            ("leave_requests.review_notes", "ALTER TABLE leave_requests ADD COLUMN IF NOT EXISTS review_notes VARCHAR(255);"),
+            ("attendance_sessions.remarks", "ALTER TABLE attendance_sessions ADD COLUMN IF NOT EXISTS remarks VARCHAR(255);"),
+            ("attendance_records.remarks", "ALTER TABLE attendance_records ADD COLUMN IF NOT EXISTS remarks VARCHAR(255);"),
+        ]
+
+        for desc, stmt in pg_statements:
+            try:
+                with db.engine.begin() as conn:
+                    conn.execute(text(stmt))
+                print(f"Auto-migration: Ensured {desc} exists (PostgreSQL).")
+            except Exception as pg_err:
+                print(f"Auto-migration notice for {desc} (PostgreSQL):", pg_err)
+
+    else:
+        # SQLite or other SQL databases
+        sqlite_columns = [
+            ("users", "initials", "VARCHAR(10)"),
+            ("students", "user_id", "INTEGER"),
+            ("batches", "course_name", "VARCHAR(120)"),
+            ("batches", "teacher_id", "INTEGER"),
+            ("batches", "status", "VARCHAR(20) DEFAULT 'Active'"),
+            ("subjects", "status", "VARCHAR(20) DEFAULT 'Active'"),
+            ("batch_students", "status", "VARCHAR(20) DEFAULT 'Active'"),
+            ("batch_students", "roll_number_in_batch", "VARCHAR(50)"),
+            ("leave_requests", "reviewed_by_id", "INTEGER"),
+            ("leave_requests", "review_notes", "VARCHAR(255)"),
+            ("attendance_sessions", "remarks", "VARCHAR(255)"),
+            ("attendance_records", "remarks", "VARCHAR(255)"),
+        ]
+
+        for table, col, col_type in sqlite_columns:
+            try:
+                with db.engine.begin() as conn:
+                    table_exists = conn.execute(text(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}';")).fetchone()
+                    if table_exists:
+                        existing_cols = [row[1] for row in conn.execute(text(f"PRAGMA table_info({table});")).fetchall()]
+                        if col not in existing_cols:
+                            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type};"))
+                            print(f"Auto-migration: Added {col} to {table} (SQLite).")
+            except Exception as sqlite_err:
+                print(f"Auto-migration notice for {table}.{col} (SQLite):", sqlite_err)
+
+    print("Auto-migration: Schema migration pass completed.")
 
 
 def sync_all_student_accounts(default_password='Student@12345'):
