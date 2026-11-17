@@ -28,6 +28,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20), nullable=True)
+    initials = db.Column(db.String(10), nullable=True, index=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -47,6 +48,10 @@ class User(UserMixin, db.Model):
     @property
     def is_admin(self):
         return self.role is not None and self.role.name == 'ADMIN'
+
+    @property
+    def is_hod(self):
+        return self.role is not None and self.role.name == 'HOD'
 
     @property
     def is_teacher(self):
@@ -486,6 +491,87 @@ class Setting(db.Model):
 
     def __repr__(self):
         return f"<Setting {self.key}={self.value}>"
+
+
+class TimetableVersion(db.Model):
+    __tablename__ = 'timetable_versions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id', ondelete='CASCADE'), nullable=False, index=True)
+    version_name = db.Column(db.String(80), default="Official Timetable 2026-27")
+    effective_from = db.Column(db.Date, default=date(2026, 9, 12))
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    batch = db.relationship('Batch', backref=db.backref('timetable_versions', lazy='dynamic'))
+    slots = db.relationship('Timetable', backref='version', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f"<TimetableVersion {self.version_name}>"
+
+
+class Timetable(db.Model):
+    __tablename__ = 'timetable'
+
+    id = db.Column(db.Integer, primary_key=True)
+    version_id = db.Column(db.Integer, db.ForeignKey('timetable_versions.id', ondelete='CASCADE'), nullable=False)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id', ondelete='CASCADE'), nullable=False, index=True)
+    day_of_week = db.Column(db.String(15), nullable=False)  # Monday .. Saturday
+    period_number = db.Column(db.Integer, nullable=False)   # 1 .. 5
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id', ondelete='SET NULL'), nullable=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    room_number = db.Column(db.String(20), default="5208")
+    period_type = db.Column(db.String(20), default="Theory")  # Theory, Practical, Tutorial, Free, Library
+
+    batch = db.relationship('Batch', backref=db.backref('timetable_slots', lazy='dynamic'))
+    subject = db.relationship('Subject')
+    teacher = db.relationship('User', foreign_keys=[teacher_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('version_id', 'day_of_week', 'period_number', name='uq_tt_version_day_period'),
+    )
+
+    def __repr__(self):
+        return f"<Timetable {self.day_of_week} P{self.period_number}: {self.subject.subject_code if self.subject else 'Free'}>"
+
+
+class CorrectionRequest(db.Model):
+    __tablename__ = 'correction_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False, index=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('attendance_records.id', ondelete='CASCADE'), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey('attendance_sessions.id', ondelete='CASCADE'), nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+
+    old_date = db.Column(db.Date, nullable=False)
+    new_date = db.Column(db.Date, nullable=False)
+    old_status = db.Column(db.String(20), nullable=False)
+    new_status = db.Column(db.String(20), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+
+    # Teacher verification stage
+    teacher_status = db.Column(db.String(20), default='Pending', nullable=False)  # Pending, Verified, Rejected
+    teacher_remarks = db.Column(db.String(255), nullable=True)
+    teacher_verified_at = db.Column(db.DateTime, nullable=True)
+
+    # HOD approval stage
+    hod_status = db.Column(db.String(20), default='Pending', nullable=False)  # Pending, Approved, Rejected
+    hod_remarks = db.Column(db.String(255), nullable=True)
+    hod_reviewed_at = db.Column(db.DateTime, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+
+    student = db.relationship('Student', backref=db.backref('correction_requests', lazy='dynamic'))
+    record = db.relationship('AttendanceRecord', backref=db.backref('correction_requests', lazy='dynamic'))
+    session = db.relationship('AttendanceSession', foreign_keys=[session_id])
+    teacher = db.relationship('User', foreign_keys=[teacher_id])
+
+    def __repr__(self):
+        return f"<CorrectionRequest #{self.id} Student:{self.student_id} Status:{self.hod_status}>"
 
 
 def sync_all_student_accounts(default_password='Student@12345'):

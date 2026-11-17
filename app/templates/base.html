@@ -53,6 +53,14 @@
                     <i class="bi bi-person-badge-fill"></i>
                     <span>My Attendance</span>
                 </a>
+                <a href="{{ url_for('timetable.view_schedule') }}" class="sidebar-link {% if request.endpoint == 'timetable.view_schedule' %}active{% endif %}">
+                    <i class="bi bi-calendar-week-fill text-primary"></i>
+                    <span>Official Timetable</span>
+                </a>
+                <a href="{{ url_for('timetable.corrections_list') }}" class="sidebar-link {% if 'corrections' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-pencil-square text-warning"></i>
+                    <span>Correction Requests</span>
+                </a>
                 <a href="{{ url_for('leaves.index') }}" class="sidebar-link {% if 'leaves' in request.endpoint and request.endpoint != 'leaves.create' %}active{% endif %}">
                     <i class="bi bi-envelope-paper-fill"></i>
                     <span>My Leave Requests</span>
@@ -72,6 +80,14 @@
                 <a href="{{ url_for('dashboard.index') }}" class="sidebar-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
                     <i class="bi bi-grid-1x2-fill"></i>
                     <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('timetable.view_schedule') }}" class="sidebar-link {% if request.endpoint == 'timetable.view_schedule' %}active{% endif %}">
+                    <i class="bi bi-calendar-week-fill text-primary"></i>
+                    <span>Official Timetable</span>
+                </a>
+                <a href="{{ url_for('timetable.corrections_list') }}" class="sidebar-link {% if 'corrections' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-shield-check text-warning"></i>
+                    <span>Correction Approvals</span>
                 </a>
                 <a href="{{ url_for('attendance.mark') }}" class="sidebar-link {% if request.endpoint == 'attendance.mark' %}active{% endif %}">
                     <i class="bi bi-check2-circle"></i>

@@ -77,6 +77,7 @@ def create_app(config_name='default'):
     from app.routes.reports import reports_bp
     from app.routes.audit import audit_bp
     from app.routes.settings import settings_bp
+    from app.routes.timetable import timetable_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp)
@@ -88,14 +89,20 @@ def create_app(config_name='default'):
     app.register_blueprint(reports_bp, url_prefix='/reports')
     app.register_blueprint(audit_bp, url_prefix='/audit')
     app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(timetable_bp, url_prefix='/timetable')
 
-    # Automatically ensure student user accounts exist on database startup
+    # Automatically ensure database tables and official timetable seed exist
     with app.app_context():
         try:
+            db.create_all()
+            from app.models import User, Batch
+            if not User.query.filter_by(email='admin@example.com').first() or not Batch.query.filter_by(batch_code='BTECH-CSE-3C').first():
+                import seed
+                seed.seed()
             from app.models import sync_all_student_accounts
             sync_all_student_accounts()
-        except Exception:
-            pass
+        except Exception as e:
+            print("Auto-init/seed warning:", e)
 
     # Error Handlers
     @app.errorhandler(403)

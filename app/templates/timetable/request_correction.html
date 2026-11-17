@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Request Attendance Correction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <a href="{{ url_for('timetable.corrections_list') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <h3 class="fw-bold text-dark mb-0">Dispute Attendance Record</h3>
+            </div>
+
+            <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 small">
+                <i class="bi bi-shield-lock me-2 fs-5"></i>
+                <strong>Academic Integrity Policy:</strong> Students cannot directly change attendance records. Submitting this request sends it to your lecture teacher for verification, and then to the HOD for official database approval.
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Select Marked Lecture</label>
+                        <select name="record_id" class="form-select form-select-lg" required>
+                            <option value="">-- Choose Marked Lecture --</option>
+                            {% for r in records %}
+                            <option value="{{ r.id }}">
+                                {{ r.session.session_date.strftime('%d %b %Y') }} &bull; {{ r.session.subject.subject_code }} (Current: {{ r.status }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Requested New Status</label>
+                        <select name="new_status" class="form-select" required>
+                            <option value="Present" selected>Present</option>
+                            <option value="Late">Late</option>
+                            <option value="Leave">Leave (Approved)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-dark">Reason / Justification</label>
+                        <textarea class="form-control" name="reason" rows="4" placeholder="Explain why your attendance was mistakenly marked..." required></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow">
+                            <i class="bi bi-send-fill me-2"></i>Submit Correction Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
