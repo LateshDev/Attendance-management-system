@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Audit Logs - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Attendance Security & Audit Trail</h3>
+            <p class="text-muted mb-0">Immutable record of every attendance status and date change across all semesters.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Audit ID</th>
+                        <th>Timestamp</th>
+                        <th>Action Type</th>
+                        <th>Student Name & Roll</th>
+                        <th>Subject & Date</th>
+                        <th>Status Change</th>
+                        <th>Authorized By</th>
+                        <th>Reason / Justification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in logs %}
+                    <tr>
+                        <td><code>#LOG-{{ l.id }}</code></td>
+                        <td class="small">{{ l.timestamp.strftime('%d %b %Y, %I:%M:%S %p') }}</td>
+                        <td><span class="badge bg-secondary">{{ l.action_type }}</span></td>
+                        <td>
+                            <strong>{{ l.attendance_record.student.full_name }}</strong>
+                            <div class="small text-muted">{{ l.attendance_record.student.roll_number }}</div>
+                        </td>
+                        <td>
+                            <div><strong>{{ l.attendance_record.session.subject.code }}</strong></div>
+                            <div class="small text-muted">{{ l.attendance_record.session.session_date.strftime('%d %b %Y') }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger">{{ l.old_status }}</span> &rarr;
+                            <span class="badge bg-success">{{ l.new_status }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                {{ l.modifier.full_name }} ({{ l.modifier.role }})
+                            </span>
+                        </td>
+                        <td class="small" style="max-width: 250px;">{{ l.reason }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center p-4 text-muted">No attendance logs found. All attendance records are untouched.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

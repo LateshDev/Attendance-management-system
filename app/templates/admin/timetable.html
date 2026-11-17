@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Timetable Editor - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Official Timetable Editor</h3>
+            <p class="text-muted mb-0">Modify lecture allocations, teacher initials, room numbers, and period types.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary px-3 py-2">
+                Room: {{ selected_class.room_number if selected_class else '5208' }} &bull; Session {{ academic_session }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Timetable Grid with Interactive Edit Triggers -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 tt-table">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th style="width: 12%;">Day / Time</th>
+                        <th style="width: 15%;">Period 1<br><small class="fw-normal">09:00 - 10:00 AM</small></th>
+                        <th style="width: 15%;">Period 2<br><small class="fw-normal">10:00 - 11:00 AM</small></th>
+                        <th style="width: 8%;" class="tt-break">Tea Break</th>
+                        <th style="width: 15%;">Period 3<br><small class="fw-normal">11:20 - 12:20 PM</small></th>
+                        <th style="width: 15%;">Period 4<br><small class="fw-normal">12:20 - 01:20 PM</small></th>
+                        <th style="width: 8%;" class="tt-break">Lunch</th>
+                        <th style="width: 15%;">Period 5<br><small class="fw-normal">02:00 - 03:00 PM</small></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] %}
+                    <tr>
+                        <td class="fw-bold bg-light text-start ps-3">{{ day }}</td>
+
+                        {# Periods 1 to 5 #}
+                        {% for p_num in [1, 2] %}
+                        <td>
+                            {% set s = slots_by_day[day].get(p_num) %}
+                            {% if s %}
+                                <div class="tt-slot-card cursor-pointer" onclick="openSlotEditor({{ s.id }}, '{{ s.day_of_week }}', {{ s.period_number }}, '{{ s.subject_id or '' }}', '{{ s.teacher_id or '' }}', '{{ s.room_number }}', '{{ s.period_type }}')">
+                                    <div class="fw-bold text-primary">{{ s.subject.code if s.subject else '—' }}</div>
+                                    <div class="small text-muted text-truncate">{{ s.subject.name if s.subject else s.period_type }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s.teacher.initials if s.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+
+                        <td class="tt-break"><small>Tea</small></td>
+
+                        {% for p_num in [3, 4] %}
+                        <td>
+                            {% set s = slots_by_day[day].get(p_num) %}
+                            {% if s %}
+                                <div class="tt-slot-card cursor-pointer" onclick="openSlotEditor({{ s.id }}, '{{ s.day_of_week }}', {{ s.period_number }}, '{{ s.subject_id or '' }}', '{{ s.teacher_id or '' }}', '{{ s.room_number }}', '{{ s.period_type }}')">
+                                    <div class="fw-bold text-primary">{{ s.subject.code if s.subject else '—' }}</div>
+                                    <div class="small text-muted text-truncate">{{ s.subject.name if s.subject else s.period_type }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s.teacher.initials if s.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+
+                        <td class="tt-break"><small>Lunch</small></td>
+
+                        <td>
+                            {% set s = slots_by_day[day].get(5) %}
+                            {% if s %}
+                                <div class="tt-slot-card cursor-pointer" onclick="openSlotEditor({{ s.id }}, '{{ s.day_of_week }}', {{ s.period_number }}, '{{ s.subject_id or '' }}', '{{ s.teacher_id or '' }}', '{{ s.room_number }}', '{{ s.period_type }}')">
+                                    <div class="fw-bold text-primary">{{ s.subject.code if s.subject else 'Free' }}</div>
+                                    <div class="small text-muted text-truncate">{{ s.subject.name if s.subject else s.period_type }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s.teacher.initials if s.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-light text-center small text-muted py-2">
+            <i class="bi bi-cursor-fill me-1"></i> Tip: Click on any lecture slot card above to edit its subject, assigned teacher, or room number.
+        </div>
+    </div>
+</div>
+
+<!-- Slot Edit Modal -->
+<div class="modal fade" id="slotEditorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="slotModalTitle">Edit Timetable Slot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.edit_timetable_slot') }}">
+                <input type="hidden" name="slot_id" id="edit_slot_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Subject</label>
+                        <select name="subject_id" id="edit_subject_id" class="form-select">
+                            <option value="">-- Free / Unassigned --</option>
+                            {% for sub in subjects %}
+                            <option value="{{ sub.id }}">{{ sub.code }} - {{ sub.name }} ({{ sub.type }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Assigned Faculty Member</label>
+                        <select name="teacher_id" id="edit_teacher_id" class="form-select">
+                            <option value="">-- No Teacher Assigned --</option>
+                            {% for t in teachers %}
+                            <option value="{{ t.id }}">{{ t.full_name }} ({{ t.initials }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Room Number</label>
+                            <input type="text" class="form-control" name="room_number" id="edit_room_number" value="5208">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Period Type</label>
+                            <select name="period_type" id="edit_period_type" class="form-select">
+                                <option value="Theory">Theory</option>
+                                <option value="Practical">Practical / Lab</option>
+                                <option value="Tutorial">Tutorial</option>
+                                <option value="Library">Library</option>
+                                <option value="Free">Free</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Update Slot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openSlotEditor(id, day, period, subjectId, teacherId, room, ptype) {
+    document.getElementById('edit_slot_id').value = id;
+    document.getElementById('slotModalTitle').innerText = `Edit ${day} - Period ${period}`;
+    document.getElementById('edit_subject_id').value = subjectId;
+    document.getElementById('edit_teacher_id').value = teacherId;
+    document.getElementById('edit_room_number').value = room;
+    document.getElementById('edit_period_type').value = ptype;
+
+    new bootstrap.Modal(document.getElementById('slotEditorModal')).show();
+}
+</script>
+{% endblock %}
+

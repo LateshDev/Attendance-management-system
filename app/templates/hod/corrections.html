@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}HOD - Attendance Corrections Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Attendance Correction Authorizations</h3>
+            <p class="text-muted mb-0">HOD authorization pipeline for attendance status & date modifications.</p>
+        </div>
+    </div>
+
+    <!-- Pending Table -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-hourglass-top text-warning me-2"></i>Awaiting HOD Decision</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Student Details</th>
+                        <th>Subject & Lecture</th>
+                        <th>Status Change</th>
+                        <th>Teacher Notes</th>
+                        <th>Student Reason</th>
+                        <th class="text-end">Authorize</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in pending %}
+                    <tr>
+                        <td><code>#{{ req.id }}</code></td>
+                        <td>
+                            <strong>{{ req.student.full_name }}</strong>
+                            <div class="small text-muted">{{ req.student.roll_number }}</div>
+                        </td>
+                        <td>
+                            <div><strong>{{ req.session.subject.code }}</strong></div>
+                            <div class="small text-muted">{{ req.old_date.strftime('%d %b %Y') }} (Period {{ req.session.period_number }})</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger">{{ req.old_status }}</span> &rarr;
+                            <span class="badge bg-success">{{ req.new_status }}</span>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-primary">Verified by {{ req.teacher.initials }}</div>
+                            <div class="small text-muted fst-italic">"{{ req.teacher_remarks }}"</div>
+                        </td>
+                        <td class="small" style="max-width: 200px;">{{ req.reason }}</td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('hod.approve_correction', req_id=req.id) }}" class="d-inline-flex gap-1">
+                                <input type="text" name="hod_remarks" class="form-control form-control-sm" placeholder="HOD remarks..." style="width: 130px;">
+                                <button type="submit" name="action" value="approve" class="btn btn-sm btn-success fw-bold">
+                                    <i class="bi bi-check-lg me-1"></i>Approve
+                                </button>
+                                <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-lg me-1"></i>Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center p-4 text-muted">No requests currently pending HOD decision.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resolved History Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-0">
+            <h6 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history text-secondary me-2"></i>Past Authorized Corrections History</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date Resolved</th>
+                        <th>Student</th>
+                        <th>Subject</th>
+                        <th>Result</th>
+                        <th>HOD Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in history %}
+                    <tr>
+                        <td>{{ h.resolved_at.strftime('%d %b %Y %I:%M %p') if h.resolved_at else '—' }}</td>
+                        <td>{{ h.student.full_name }} ({{ h.student.roll_number }})</td>
+                        <td>{{ h.session.subject.code }}</td>
+                        <td>
+                            {% if h.hod_status == 'Approved' %}
+                                <span class="badge bg-success">Approved ({{ h.new_status }})</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ h.hod_remarks or '—' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center p-4 text-muted">No historical records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

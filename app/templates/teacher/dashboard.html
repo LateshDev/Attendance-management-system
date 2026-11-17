@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - {{ teacher.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-white text-primary mb-2 fw-semibold">Faculty Portal</span>
+                <h2 class="fw-bold mb-1">{{ teacher.full_name }} ({{ teacher.initials }})</h2>
+                <p class="mb-0 text-white-50 small">
+                    {{ teacher.designation }} &bull; Department of {{ teacher.department.name }} &bull; Emp ID: {{ teacher.emp_id }}
+                </p>
+            </div>
+            <div class="text-end">
+                <div class="fs-4 fw-bold">{{ today.strftime('%d %B %Y') }}</div>
+                <div class="text-white-50">{{ day_name }} &bull; Official Timetable Mode</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Today's Lectures</div>
+                    <div class="fs-4 fw-bold text-dark">{{ today_slots|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Pending Corrections</div>
+                    <div class="fs-4 fw-bold text-dark">{{ pending_corrections|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="stat-card d-flex align-items-center gap-3">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Assigned Subjects</div>
+                    <div class="fs-4 fw-bold text-dark">{{ assigned_allocations|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Scheduled Lectures -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-calendar-check text-primary me-2"></i>Today's Scheduled Lectures ({{ day_name }})
+            </h5>
+            <span class="badge bg-light text-muted border">Automatic Timetable Schedule</span>
+        </div>
+        <div class="card-body p-0">
+            {% if today_slots %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Period</th>
+                            <th>Time</th>
+                            <th>Class / Section</th>
+                            <th>Subject</th>
+                            <th>Type</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for slot in today_slots %}
+                        {% set sess = marked_session_map.get(slot.id) %}
+                        <tr>
+                            <td><span class="badge bg-primary">Period {{ slot.period_number }}</span></td>
+                            <td class="small fw-semibold">{{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}</td>
+                            <td>{{ slot.class_group.name }} ({{ slot.class_group.section }})</td>
+                            <td>
+                                <strong>{{ slot.subject.code }}</strong>
+                                <div class="small text-muted">{{ slot.subject.name }}</div>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ slot.period_type }}</span></td>
+                            <td><code>{{ slot.room_number }}</code></td>
+                            <td>
+                                {% if sess %}
+                                    <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i>Marked</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if sess %}
+                                    <a href="{{ url_for('teacher.view_session', session_id=sess.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>View Attendance
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('teacher.mark_attendance', slot_id=slot.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil-square me-1"></i>Mark Attendance
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center text-muted">
+                <i class="bi bi-cup-hot fs-3 text-secondary d-block mb-2"></i>
+                No lectures scheduled for you today ({{ day_name }}). Enjoy your research & preparation time!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Two Column Section: Pending Student Corrections & Recent Sessions -->
+    <div class="row g-4">
+        <!-- Pending Corrections -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-shield-exclamation text-warning me-2"></i>Correction Requests Awaiting Verification
+                    </h6>
+                    <a href="{{ url_for('teacher.corrections') }}" class="small text-decoration-none">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if pending_corrections %}
+                    <ul class="list-group list-group-flush">
+                        {% for req in pending_corrections %}
+                        <li class="list-group-item p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div>
+                                    <strong>{{ req.student.full_name }}</strong> ({{ req.student.roll_number }})
+                                    <div class="small text-muted">{{ req.session.subject.name }} &bull; Lecture Date: {{ req.old_date }}</div>
+                                </div>
+                                <span class="badge bg-warning text-dark">Teacher Action Required</span>
+                            </div>
+                            <div class="small bg-light p-2 rounded mb-2 text-muted">
+                                <em>"{{ req.reason }}"</em>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small">Change: <span class="badge bg-danger">{{ req.old_status }}</span> &rarr; <span class="badge bg-success">{{ req.new_status }}</span></span>
+                                <a href="{{ url_for('teacher.corrections') }}" class="btn btn-sm btn-outline-primary py-0">Review</a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-4 text-center text-muted small">No pending correction requests.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Marked Sessions -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-journal-text text-success me-2"></i>Recent Attendance Records
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Period</th>
+                                    <th>Subject</th>
+                                    <th>Topic Covered</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in recent_sessions %}
+                                <tr>
+                                    <td>{{ s.session_date.strftime('%d %b %Y') }}</td>
+                                    <td>Period {{ s.period_number }}</td>
+                                    <td><strong>{{ s.subject.code }}</strong></td>
+                                    <td class="text-truncate" style="max-width: 140px;">{{ s.topic_covered or '—' }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('teacher.view_session', session_id=s.id) }}" class="btn btn-sm btn-link p-0 text-decoration-none">Details &rarr;</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted small">No recent sessions found.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

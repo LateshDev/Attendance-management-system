@@ -1,0 +1,158 @@
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #0ea5e9;
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #94a3b8;
+    --sidebar-hover-bg: #1e293b;
+    --sidebar-active-text: #ffffff;
+    --body-bg: #f8fafc;
+    --card-border: #e2e8f0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--body-bg);
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.app-sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-nav {
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+    color: var(--sidebar-active-text);
+    background-color: var(--sidebar-hover-bg);
+}
+
+.sidebar-link.active {
+    background-color: var(--primary-color);
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    padding: 1rem 1rem 0.5rem;
+}
+
+/* Main Content */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.top-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+}
+
+.content-body {
+    padding: 1.75rem;
+    flex: 1;
+}
+
+/* Cards & Stats */
+.stat-card {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid var(--card-border);
+    padding: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+
+/* Timetable Grid */
+.tt-table th, .tt-table td {
+    vertical-align: middle;
+    text-align: center;
+    font-size: 0.88rem;
+    padding: 0.75rem 0.5rem;
+}
+
+.tt-slot-card {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    transition: all 0.2s;
+}
+
+.tt-slot-card:hover {
+    background: #e2e8f0;
+}
+
+.tt-break {
+    background: #fef3c7 !important;
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* Defaulter Badge */
+.badge-defaulter {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    font-weight: 600;
+}
+
+.badge-eligible {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #86efac;
+    font-weight: 600;
+}
+

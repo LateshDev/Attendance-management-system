@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}HOD Dashboard - Department of {{ dept.name if dept else 'CSE' }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-white text-primary mb-2 fw-semibold">HOD Administration Portal</span>
+                <h2 class="fw-bold mb-1">Department of {{ dept.name if dept else 'Computer Science & Engineering' }}</h2>
+                <p class="mb-0 text-white-50 small">
+                    Academic Monitoring &bull; Attendance Authorization &bull; Faculty Oversight
+                </p>
+            </div>
+            <div class="text-end">
+                <a href="{{ url_for('hod.corrections') }}" class="btn btn-warning fw-bold shadow-sm">
+                    <i class="bi bi-shield-check me-1"></i>Review Approvals ({{ pending_approvals|length }})
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dept Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card">
+                <div class="text-muted small">Dept Attendance Rate</div>
+                <div class="fs-2 fw-bold text-success mt-1">{{ dept_attendance_pct }}%</div>
+                <div class="small text-muted mt-2">Overall average</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card">
+                <div class="text-muted small">Total Enrolled Students</div>
+                <div class="fs-2 fw-bold text-dark mt-1">{{ total_students }}</div>
+                <div class="small text-muted mt-2">Active students</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card">
+                <div class="text-muted small">Total Faculty Members</div>
+                <div class="fs-2 fw-bold text-primary mt-1">{{ teachers|length }}</div>
+                <div class="small text-muted mt-2">Professors & Instructors</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card">
+                <div class="text-muted small">Conducted Lectures</div>
+                <div class="fs-2 fw-bold text-dark mt-1">{{ total_sessions }}</div>
+                <div class="small text-muted mt-2">Logged sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Approvals Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-shield-check text-warning me-2"></i>Attendance Correction Requests Awaiting HOD Authorization
+            </h5>
+            <span class="badge bg-warning text-dark">{{ pending_approvals|length }} Pending</span>
+        </div>
+        <div class="card-body p-0">
+            {% if pending_approvals %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Subject & Date</th>
+                            <th>Status Change</th>
+                            <th>Teacher Verification</th>
+                            <th>Student Reason</th>
+                            <th class="text-end">HOD Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in pending_approvals %}
+                        <tr>
+                            <td>
+                                <strong>{{ req.student.full_name }}</strong>
+                                <div class="small text-muted">{{ req.student.roll_number }}</div>
+                            </td>
+                            <td>
+                                <div><strong>{{ req.session.subject.code }}</strong></div>
+                                <div class="small text-muted">{{ req.old_date.strftime('%d %b %Y') }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger">{{ req.old_status }}</span> &rarr;
+                                <span class="badge bg-success">{{ req.new_status }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    <i class="bi bi-check2 me-1"></i>Verified by {{ req.teacher.initials }}
+                                </span>
+                                <div class="small text-muted fst-italic">"{{ req.teacher_remarks }}"</div>
+                            </td>
+                            <td class="small" style="max-width: 200px;">{{ req.reason }}</td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ url_for('hod.approve_correction', req_id=req.id) }}" class="d-inline-flex gap-1">
+                                    <input type="text" name="hod_remarks" class="form-control form-control-sm" placeholder="Notes..." style="width: 110px;">
+                                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-success fw-bold" title="Approve & Update DB">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger" title="Reject Request">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center text-muted">
+                <i class="bi bi-check-circle fs-3 text-success d-block mb-2"></i>
+                All verified attendance correction requests have been processed! No pending items.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Audit Logs -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-shield-lock text-primary me-2"></i>Recent Attendance Modification Audit Trail
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_logs %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Action Type</th>
+                            <th>Student</th>
+                            <th>Transition</th>
+                            <th>Modified By</th>
+                            <th>Reason / Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%d %b %Y %I:%M %p') }}</td>
+                            <td><span class="badge bg-secondary">{{ log.action_type }}</span></td>
+                            <td>{{ log.attendance_record.student.full_name }} ({{ log.attendance_record.student.roll_number }})</td>
+                            <td>
+                                <span class="badge bg-danger">{{ log.old_status }}</span> &rarr;
+                                <span class="badge bg-success">{{ log.new_status }}</span>
+                            </td>
+                            <td><strong>{{ log.modifier.full_name }}</strong> ({{ log.modifier.role }})</td>
+                            <td>{{ log.reason }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center text-muted small">No modifications logged yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

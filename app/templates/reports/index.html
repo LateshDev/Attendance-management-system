@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Reports & Defaulter List{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Academic Attendance Analytics & Reports</h3>
+            <p class="text-muted mb-0">
+                {{ selected_class.name }} (Section {{ selected_class.section }}) &bull;
+                Academic Year {{ selected_class.academic_year }} &bull;
+                Conducted Lectures: <strong>{{ total_conducted }}</strong>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if selected_class %}
+            <a href="{{ url_for('reports.export_excel', class_id=selected_class.id) }}" class="btn btn-outline-success fw-bold shadow-sm">
+                <i class="bi bi-file-earmark-excel me-1"></i>Download Excel (.xlsx)
+            </a>
+            <a href="{{ url_for('reports.export_pdf', class_id=selected_class.id) }}" class="btn btn-outline-danger fw-bold shadow-sm">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF Report
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Defaulter Warning Card -->
+    {% if defaulters %}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-danger border-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <h5 class="fw-bold text-danger mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Official Defaulter List (Below 75% Attendance)
+                </h5>
+                <span class="badge bg-danger">{{ defaulters|length }} Students Affected</span>
+            </div>
+            <p class="text-muted small mb-3">These students have less than the mandatory 75% attendance and are at risk of exam debarment.</p>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Student Name</th>
+                            <th>Total Conducted</th>
+                            <th>Attended</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in defaulters %}
+                        <tr>
+                            <td><code>{{ d.student.roll_number }}</code></td>
+                            <td class="fw-bold">{{ d.student.full_name }}</td>
+                            <td>{{ d.conducted }}</td>
+                            <td>{{ d.attended }}</td>
+                            <td><strong class="text-danger">{{ d.percentage }}%</strong></td>
+                            <td><span class="badge badge-defaulter">Defaulter Notice Issued</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Comprehensive Class Attendance Matrix -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-table text-primary me-2"></i>Class-Wise & Subject-Wise Attendance Sheet
+            </h5>
+            <span class="small text-muted">Attendance % = (Attended / Conducted) &times; 100</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Student Name</th>
+                        <th class="text-center">Conducted</th>
+                        <th class="text-center">Attended</th>
+                        <th class="text-center">Overall %</th>
+                        <th class="text-center">Eligibility</th>
+                        {% for sub in subjects %}
+                        <th class="text-center"><small>{{ sub.code }} %</small></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in student_stats %}
+                    <tr class="{% if stat.is_defaulter %}table-danger-subtle{% endif %}">
+                        <td><code>{{ stat.student.roll_number }}</code></td>
+                        <td class="fw-semibold">{{ stat.student.full_name }}</td>
+                        <td class="text-center">{{ stat.conducted }}</td>
+                        <td class="text-center">{{ stat.attended }}</td>
+                        <td class="text-center">
+                            <strong class="{% if stat.is_defaulter %}text-danger{% else %}text-success{% endif %}">
+                                {{ stat.percentage }}%
+                            </strong>
+                        </td>
+                        <td class="text-center">
+                            {% if stat.is_defaulter %}
+                                <span class="badge badge-defaulter">Defaulter</span>
+                            {% else %}
+                                <span class="badge badge-eligible">Eligible</span>
+                            {% endif %}
+                        </td>
+                        {% for sub in subjects %}
+                        {% set s_dat = stat.subjects.get(sub.id) %}
+                        <td class="text-center small">
+                            {% if s_dat and s_dat.conducted > 0 %}
+                                <span class="{% if s_dat.pct < 75 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                    {{ s_dat.pct }}%
+                                </span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ 6 + subjects|length }}" class="text-center p-4 text-muted">No students enrolled in this class.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

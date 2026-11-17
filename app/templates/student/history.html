@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance History - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Attendance History & Lecture Log</h3>
+            <p class="text-muted mb-0">Complete record of all marked lectures, dates, and statuses.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('student.request_correction') }}" class="btn btn-primary">
+                <i class="bi bi-pencil-square me-1"></i>Request Correction
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted mb-1">Filter by Subject</label>
+                <select name="subject_id" class="form-select">
+                    <option value="">All Subjects</option>
+                    {% for sub in subjects %}
+                    <option value="{{ sub.id }}" {% if selected_subject == sub.id %}selected{% endif %}>
+                        {{ sub.code }} - {{ sub.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-1">Filter by Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Present" {% if selected_status == 'Present' %}selected{% endif %}>Present</option>
+                    <option value="Absent" {% if selected_status == 'Absent' %}selected{% endif %}>Absent</option>
+                    <option value="Late" {% if selected_status == 'Late' %}selected{% endif %}>Late</option>
+                    <option value="Leave" {% if selected_status == 'Leave' %}selected{% endif %}>Leave</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Apply Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Records Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Period & Time</th>
+                        <th>Subject</th>
+                        <th>Teacher</th>
+                        <th>Status</th>
+                        <th>Remarks / Topic</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td class="fw-semibold">{{ r.session.session_date.strftime('%d %b %Y') }}</td>
+                        <td>Period {{ r.session.period_number }} ({{ r.session.start_time.strftime('%I:%M %p') }})</td>
+                        <td>
+                            <strong>{{ r.session.subject.code }}</strong>
+                            <div class="small text-muted">{{ r.session.subject.name }}</div>
+                        </td>
+                        <td>{{ r.session.teacher.full_name }} ({{ r.session.teacher.initials }})</td>
+                        <td>
+                            {% if r.status == 'Present' %}
+                                <span class="badge bg-success">Present</span>
+                            {% elif r.status == 'Absent' %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% elif r.status == 'Late' %}
+                                <span class="badge bg-warning text-dark">Late</span>
+                            {% else %}
+                                <span class="badge bg-info">Leave</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ r.remarks or r.session.topic_covered or '—' }}</td>
+                        <td class="text-end">
+                            {% if r.status == 'Absent' %}
+                            <a href="{{ url_for('student.request_correction') }}?att_id={{ r.id }}" class="btn btn-sm btn-outline-primary py-0">
+                                Dispute
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center p-4 text-muted">No attendance records found matching criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

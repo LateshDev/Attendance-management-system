@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Correction Requests - Teacher Verification{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Student Attendance Correction Requests</h3>
+            <p class="text-muted mb-0">Verify legitimate claims before forwarding them to HOD for final database approval.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Subject</th>
+                        <th>Student Details</th>
+                        <th>Current Status</th>
+                        <th>Requested Status</th>
+                        <th>Reason Given</th>
+                        <th>Teacher Status</th>
+                        <th>HOD Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ req.session.subject.code }}</div>
+                            <div class="small text-muted">{{ req.old_date.strftime('%d %b %Y') }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ req.student.full_name }}</div>
+                            <div class="small text-muted">{{ req.student.roll_number }}</div>
+                        </td>
+                        <td><span class="badge bg-danger">{{ req.old_status }}</span></td>
+                        <td><span class="badge bg-success">{{ req.new_status }}</span></td>
+                        <td class="small" style="max-width: 200px;">
+                            <span class="text-dark">{{ req.reason }}</span>
+                        </td>
+                        <td>
+                            {% if req.teacher_status == 'Pending' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                            {% elif req.teacher_status == 'Verified' %}
+                                <span class="badge bg-primary"><i class="bi bi-check2-all me-1"></i>Verified</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if req.hod_status == 'Pending' %}
+                                <span class="badge bg-light text-muted border">Pending</span>
+                            {% elif req.hod_status == 'Approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if req.teacher_status == 'Pending' %}
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#verifyModal{{ req.id }}">
+                                <i class="bi bi-pencil me-1"></i>Verify Request
+                            </button>
+
+                            <!-- Verification Modal -->
+                            <div class="modal fade text-start" id="verifyModal{{ req.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content rounded-4 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title fw-bold">Verify Correction Request #{{ req.id }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('teacher.verify_correction', req_id=req.id) }}">
+                                            <div class="modal-body">
+                                                <div class="bg-light p-3 rounded-3 mb-3 small">
+                                                    <div><strong>Student:</strong> {{ req.student.full_name }} ({{ req.student.roll_number }})</div>
+                                                    <div><strong>Subject:</strong> {{ req.session.subject.name }}</div>
+                                                    <div><strong>Requested:</strong> {{ req.old_status }} &rarr; <span class="text-success fw-bold">{{ req.new_status }}</span></div>
+                                                    <div><strong>Student Reason:</strong> <em>{{ req.reason }}</em></div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label small fw-semibold">Teacher Remarks / Notes</label>
+                                                    <textarea class="form-control" name="teacher_remarks" rows="2" placeholder="e.g. Verified student was in lab viva, forwarding for HOD approval..." required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                                                <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>Reject
+                                                </button>
+                                                <button type="submit" name="action" value="verify" class="btn btn-primary fw-bold">
+                                                    <i class="bi bi-check2-circle me-1"></i>Verify & Forward to HOD
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-muted small">No action</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center p-4 text-muted">No attendance correction requests found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

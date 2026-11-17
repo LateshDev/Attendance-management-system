@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance - Period {{ slot.period_number }} ({{ slot.subject.code }}){% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+            <h3 class="fw-bold text-dark mb-0">Record Lecture Attendance</h3>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-primary px-3 py-2 fs-6">Date: {{ session_date.strftime('%d %B %Y') }}</span>
+        </div>
+    </div>
+
+    <!-- Lecture Details Banner -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-light">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small">Subject</div>
+                    <div class="fw-bold fs-5 text-dark">{{ slot.subject.code }}</div>
+                    <div class="small text-muted">{{ slot.subject.name }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small">Class & Section</div>
+                    <div class="fw-bold fs-5 text-dark">{{ slot.class_group.name }}</div>
+                    <div class="small text-muted">Section {{ slot.class_group.section }} &bull; Sem {{ slot.class_group.semester }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small">Period & Timing</div>
+                    <div class="fw-bold fs-5 text-dark">Period {{ slot.period_number }}</div>
+                    <div class="small text-muted">{{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="text-muted small">Lecture Type & Room</div>
+                    <div class="fw-bold fs-5 text-dark">{{ slot.period_type }}</div>
+                    <div class="small text-muted">Room No: {{ slot.room_number }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if existing_session %}
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+        <div>
+            <strong>Attendance has already been locked for this slot today!</strong>
+            <a href="{{ url_for('teacher.view_session', session_id=existing_session.id) }}" class="alert-link ms-2">Click here to view attendance records &rarr;</a>
+        </div>
+    </div>
+    {% else %}
+
+    <form method="POST" id="attendanceForm">
+        <!-- Topic Covered -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <label for="topic_covered" class="form-label fw-bold text-dark">Topic Covered in this Lecture</label>
+                <input type="text" class="form-control form-control-lg" id="topic_covered" name="topic_covered" placeholder="e.g. Process Scheduling Algorithms / Network Layer Routing Protocols" required>
+            </div>
+        </div>
+
+        <!-- Student Attendance Table -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="fw-bold text-dark mb-0">Student Attendance List ({{ students|length }} Students)</h5>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-success" onclick="markAll('Present')">
+                        <i class="bi bi-check-all me-1"></i>All Present
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="markAll('Absent')">
+                        <i class="bi bi-x-circle me-1"></i>All Absent
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 15%;">Roll Number</th>
+                            <th style="width: 25%;">Student Name</th>
+                            <th style="width: 35%;">Attendance Status</th>
+                            <th style="width: 25%;">Remarks (Optional)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td><span class="badge bg-secondary-subtle text-secondary fw-bold">{{ s.roll_number }}</span></td>
+                            <td class="fw-semibold text-dark">{{ s.full_name }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="status_{{ s.id }}" id="p_{{ s.id }}" value="Present" checked>
+                                    <label class="btn btn-sm btn-outline-success px-3" for="p_{{ s.id }}">Present</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ s.id }}" id="a_{{ s.id }}" value="Absent">
+                                    <label class="btn btn-sm btn-outline-danger px-3" for="a_{{ s.id }}">Absent</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ s.id }}" id="l_{{ s.id }}" value="Late">
+                                    <label class="btn btn-sm btn-outline-warning px-3" for="l_{{ s.id }}">Late</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ s.id }}" id="lv_{{ s.id }}" value="Leave">
+                                    <label class="btn btn-sm btn-outline-info px-3" for="lv_{{ s.id }}">Leave</label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="remarks_{{ s.id }}" placeholder="Optional notes...">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                <span class="text-muted small">
+                    <i class="bi bi-shield-lock me-1"></i> Submission will lock this session and automatically calculate attendance percentages.
+                </span>
+                <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow">
+                    <i class="bi bi-cloud-check-fill me-2"></i>Save & Lock Attendance
+                </button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+<script>
+function markAll(status) {
+    const prefix = status === 'Present' ? 'p_' : 'a_';
+    const radios = document.querySelectorAll(`input[type="radio"][id^="${prefix}"]`);
+    radios.forEach(r => r.checked = true);
+}
+</script>
+{% endblock %}
+

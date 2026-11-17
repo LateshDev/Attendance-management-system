@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Request Attendance Correction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <h3 class="fw-bold text-dark mb-0">Submit Attendance Correction Request</h3>
+            </div>
+
+            <!-- Policy Warning -->
+            <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 small">
+                <i class="bi bi-shield-check me-2 fs-5"></i>
+                <strong>Academic Integrity Policy:</strong> Students cannot directly change attendance records. Every request will be submitted to your lecture teacher for factual verification, and forwarded to the Head of Department (HOD) for final database approval. Full audit history is logged.
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <form method="POST">
+                    <!-- Select Lecture Record -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Select Lecture to Correct</label>
+                        <select name="attendance_id" class="form-select form-select-lg" required>
+                            <option value="">-- Choose Marked Lecture --</option>
+                            {% for r in records %}
+                            <option value="{{ r.id }}">
+                                {{ r.session.session_date.strftime('%d %b %Y') }} &bull; Period {{ r.session.period_number }} &bull; {{ r.session.subject.code }} (Current: {{ r.status }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose the lecture where you believe your attendance was mistakenly marked.</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Requested Status -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small">Requested Status</label>
+                            <select name="new_status" class="form-select" required>
+                                <option value="Present" selected>Present</option>
+                                <option value="Late">Late</option>
+                                <option value="Leave">Leave (Approved)</option>
+                            </select>
+                        </div>
+
+                        <!-- Date Modification (if required) -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small">Correct Date (if misrecorded)</label>
+                            <input type="date" class="form-control" name="new_date">
+                            <div class="form-text">Leave blank if the date itself was correct.</div>
+                        </div>
+                    </div>
+
+                    <!-- Justification / Reason -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark small">Detailed Justification / Reason</label>
+                        <textarea class="form-control" name="reason" rows="4" placeholder="Explain clearly why your attendance needs correction (e.g., Present in class during viva, participated in official college event, signed attendance sheet on page 2...)" required></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow">
+                            <i class="bi bi-send-fill me-2"></i>Submit Correction Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

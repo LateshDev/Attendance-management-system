@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 py-4">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white text-center py-4 border-0">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white text-primary rounded-circle shadow-sm p-3 mb-2">
+                    <i class="bi bi-mortarboard-fill fs-2"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ app_name }}</h4>
+                <p class="mb-0 text-white-50 small">{{ institute_name }}</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-white">
+                <h5 class="fw-bold text-dark mb-4 text-center">Account Sign In</h5>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small" for="login_id">Email or Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 py-2" id="login_id" name="login_id" placeholder="admin@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted small" for="password">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0 py-2" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me" value="1">
+                        <label class="form-check-label text-muted small" for="remember_me">Keep me signed in</label>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold shadow-sm py-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Credentials Quick Switcher -->
+                <div class="p-3 bg-light rounded-3 border mt-4">
+                    <div class="fw-bold small text-dark mb-2 d-flex align-items-center gap-1">
+                        <i class="bi bi-key-fill text-warning"></i> Quick Demo Logins:
+                    </div>
+                    <div class="d-grid gap-1">
+                        <button type="button" class="btn btn-outline-primary btn-sm text-start" onclick="fillLogin('admin@example.com', 'Admin@12345')">
+                            <strong>Admin:</strong> <code>admin@example.com</code> / <code>Admin@12345</code>
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm text-start" onclick="fillLogin('hod.cse@example.com', 'Hod@12345')">
+                            <strong>HOD:</strong> <code>hod.cse@example.com</code> / <code>Hod@12345</code>
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm text-start" onclick="fillLogin('hbt@example.com', 'Teacher@12345')">
+                            <strong>Teacher (HBT):</strong> <code>hbt@example.com</code> / <code>Teacher@12345</code>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm text-start" onclick="fillLogin('deepesh@example.com', 'Student@12345')">
+                            <strong>Student (Deepesh):</strong> <code>deepesh@example.com</code> / <code>Student@12345</code>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light text-center py-3 border-0 small text-muted">
+                &copy; {{ academic_session }} {{ institute_name }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillLogin(email, password) {
+    document.getElementById('login_id').value = email;
+    document.getElementById('password').value = password;
+}
+</script>
+{% endblock %}
+

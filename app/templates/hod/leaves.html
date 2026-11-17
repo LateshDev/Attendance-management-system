@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}HOD - Leave Applications Review{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Student Leave Applications</h3>
+            <p class="text-muted mb-0">Review and authorize student medical and academic leave requests.</p>
+        </div>
+    </div>
+
+    <!-- Pending Leaves Table -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-hourglass-split text-warning me-2"></i>Pending Review</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Duration</th>
+                        <th>Reason</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in pending_leaves %}
+                    <tr>
+                        <td>
+                            <strong>{{ l.student.full_name }}</strong>
+                            <div class="small text-muted">{{ l.student.roll_number }}</div>
+                        </td>
+                        <td>{{ l.student.class_group.name }} ({{ l.student.class_group.section }})</td>
+                        <td>
+                            <strong>{{ l.start_date.strftime('%d %b %Y') }}</strong> to <strong>{{ l.end_date.strftime('%d %b %Y') }}</strong>
+                        </td>
+                        <td class="small" style="max-width: 250px;">{{ l.reason }}</td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('hod.review_leave', leave_id=l.id) }}" class="d-inline-flex gap-1">
+                                <button type="submit" name="action" value="approve" class="btn btn-sm btn-success fw-bold">
+                                    <i class="bi bi-check-lg me-1"></i>Approve
+                                </button>
+                                <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-lg me-1"></i>Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center p-4 text-muted">No pending leave applications.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Past Leaves -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-0">
+            <h6 class="fw-bold text-dark mb-0">Past Leave History</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Reviewed At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in past_leaves %}
+                    <tr>
+                        <td>{{ l.student.full_name }} ({{ l.student.roll_number }})</td>
+                        <td>{{ l.start_date }} to {{ l.end_date }}</td>
+                        <td>
+                            {% if l.status == 'Approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ l.reviewed_at.strftime('%d %b %Y %I:%M %p') if l.reviewed_at else '—' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center p-4 text-muted">No past leave applications found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

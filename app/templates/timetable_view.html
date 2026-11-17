@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Official Timetable - {{ cls.name }} {{ cls.section }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Official College Timetable</h3>
+            <p class="text-muted mb-0">
+                Course: <strong>{{ cls.course.name }} ({{ cls.course.code }})</strong> &bull;
+                Branch: <strong>{{ cls.department.name }}</strong> &bull;
+                Semester: <strong>{{ cls.section }}</strong> &bull;
+                Room: <strong>{{ cls.room_number }}</strong> &bull;
+                Session: <strong>{{ cls.academic_year }}</strong>
+            </p>
+        </div>
+        <div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                <i class="bi bi-check-circle me-1"></i> Effective From: 12 September 2026
+            </span>
+        </div>
+    </div>
+
+    <!-- Timetable Grid -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 tt-table">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th style="width: 12%;">Day / Time</th>
+                        <th style="width: 15%;">Period 1<br><small class="fw-normal">09:00 - 10:00 AM</small></th>
+                        <th style="width: 15%;">Period 2<br><small class="fw-normal">10:00 - 11:00 AM</small></th>
+                        <th style="width: 8%;" class="tt-break">Tea Break<br><small class="fw-normal">11:00 - 11:20</small></th>
+                        <th style="width: 15%;">Period 3<br><small class="fw-normal">11:20 - 12:20 PM</small></th>
+                        <th style="width: 15%;">Period 4<br><small class="fw-normal">12:20 - 01:20 PM</small></th>
+                        <th style="width: 8%;" class="tt-break">Lunch<br><small class="fw-normal">01:20 - 02:00</small></th>
+                        <th style="width: 15%;">Period 5<br><small class="fw-normal">02:00 - 03:00 PM</small></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] %}
+                    <tr>
+                        <td class="fw-bold bg-light text-start ps-3">{{ day }}</td>
+
+                        {# Period 1 #}
+                        <td>
+                            {% set s1 = slots_by_day[day].get(1) %}
+                            {% if s1 and s1.subject %}
+                                <div class="tt-slot-card">
+                                    <div class="fw-bold text-primary">{{ s1.subject.code }}</div>
+                                    <div class="small text-muted text-truncate">{{ s1.subject.name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s1.teacher.initials if s1.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s1.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Period 2 #}
+                        <td>
+                            {% set s2 = slots_by_day[day].get(2) %}
+                            {% if s2 and s2.subject %}
+                                <div class="tt-slot-card">
+                                    <div class="fw-bold text-primary">{{ s2.subject.code }}</div>
+                                    <div class="small text-muted text-truncate">{{ s2.subject.name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s2.teacher.initials if s2.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s2.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Tea Break Column (Vertical divider) #}
+                        <td class="tt-break"><small>Tea Break</small></td>
+
+                        {# Period 3 #}
+                        <td>
+                            {% set s3 = slots_by_day[day].get(3) %}
+                            {% if s3 and s3.subject %}
+                                <div class="tt-slot-card">
+                                    <div class="fw-bold text-primary">{{ s3.subject.code }}</div>
+                                    <div class="small text-muted text-truncate">{{ s3.subject.name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s3.teacher.initials if s3.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s3.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Period 4 #}
+                        <td>
+                            {% set s4 = slots_by_day[day].get(4) %}
+                            {% if s4 and s4.subject %}
+                                <div class="tt-slot-card">
+                                    <div class="fw-bold text-primary">{{ s4.subject.code }}</div>
+                                    <div class="small text-muted text-truncate">{{ s4.subject.name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s4.teacher.initials if s4.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s4.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Lunch Break Column #}
+                        <td class="tt-break"><small>Lunch Break</small></td>
+
+                        {# Period 5 #}
+                        <td>
+                            {% set s5 = slots_by_day[day].get(5) %}
+                            {% if s5 and s5.subject %}
+                                <div class="tt-slot-card">
+                                    <div class="fw-bold text-primary">{{ s5.subject.code }}</div>
+                                    <div class="small text-muted text-truncate">{{ s5.subject.name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ s5.teacher.initials if s5.teacher else 'TBD' }}</span>
+                                        <span class="badge bg-light text-dark border">{{ s5.period_type }}</span>
+                                    </div>
+                                </div>
+                            {% elif s5 and s5.period_type == 'Free' %}
+                                <span class="badge bg-light text-muted border">Free Period</span>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Teacher Initials Legend -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle text-primary me-2"></i>Faculty Mapping & Legend</h6>
+        <div class="row g-2 small">
+            <div class="col-md-3"><strong>HBT</strong>: Harish Bhatt Tripathi (TQM)</div>
+            <div class="col-md-3"><strong>RPL</strong>: Rahul Prakash Lal (CN, CN Lab)</div>
+            <div class="col-md-3"><strong>PMA</strong>: Priya Mehta Arora (OS, OS Lab)</div>
+            <div class="col-md-3"><strong>SBT</strong>: Sneha Bansal Tyagi (S/W QA)</div>
+            <div class="col-md-3"><strong>DPR</strong>: Deepak Pratap Rawat (Spreadsheet Lab)</div>
+            <div class="col-md-3"><strong>AJM</strong>: Anjali Joshi Mehta (Machine Learning)</div>
+            <div class="col-md-3"><strong>PM</strong>: Pankaj Mishra (Practice Lab / Library)</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Your Notifications</h3>
+            <p class="text-muted mb-0">System updates, attendance warnings, and authorization results.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            {% if notifications %}
+            <ul class="list-group list-group-flush">
+                {% for n in notifications %}
+                <li class="list-group-item p-3 d-flex align-items-start gap-3">
+                    <div class="fs-4 text-{{ n.type }}">
+                        {% if n.type == 'success' %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif n.type == 'warning' or n.type == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-1 text-dark">{{ n.title }}</h6>
+                            <small class="text-muted">{{ n.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                        </div>
+                        <p class="mb-0 text-secondary small">{{ n.message }}</p>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="bi bi-bell-slash fs-2 d-block mb-2 text-secondary"></i>
+                You have no notifications at this time.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
