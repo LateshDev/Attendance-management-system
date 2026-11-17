@@ -575,19 +575,25 @@ class CorrectionRequest(db.Model):
 
 
 def auto_migrate_schema():
-    """Ensure newly added columns are migrated to existing databases (e.g. Render PostgreSQL)."""
+    """Ensure newly added columns and tables are migrated to existing databases (e.g. Render PostgreSQL)."""
+    from sqlalchemy import text
+    # 1. PostgreSQL (default on Render)
     try:
-        from sqlalchemy import inspect, text
-        inspector = inspect(db.engine)
-        if 'users' in inspector.get_table_names():
-            cols = [c['name'] for c in inspector.get_columns('users')]
-            if 'initials' not in cols:
-                with db.engine.connect() as conn:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN initials VARCHAR(10)"))
-                    conn.commit()
-                    print("Auto-migration: Added 'initials' column to users table.")
-    except Exception as e:
-        print("Auto-migration notice:", e)
+        with db.engine.begin() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS initials VARCHAR(10);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_initials ON users (initials);"))
+            print("Auto-migration: Ensured 'initials' column exists in users table (PostgreSQL).")
+        return
+    except Exception as pg_err:
+        print("Auto-migration (PostgreSQL attempt) notice:", pg_err)
+
+    # 2. SQLite fallback (local development / testing)
+    try:
+        with db.engine.begin() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN initials VARCHAR(10);"))
+            print("Auto-migration: Added 'initials' column to users table (SQLite).")
+    except Exception as sqlite_err:
+        print("Auto-migration (SQLite attempt) notice:", sqlite_err)
 
 
 def sync_all_student_accounts(default_password='Student@12345'):

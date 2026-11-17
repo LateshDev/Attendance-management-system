@@ -12,11 +12,11 @@ from app.models import (
 
 def seed(target_app=None):
     def run_seed():
-        print("Ensuring all database tables exist...")
-        db.create_all()
-
         from app.models import auto_migrate_schema
         auto_migrate_schema()
+
+        print("Ensuring all database tables exist...")
+        db.create_all()
 
         # -------------------------------------------------------------
         # 1. ROLES (ADMIN, HOD, TEACHER, STUDENT)
@@ -315,6 +315,14 @@ def seed(target_app=None):
         run_seed()
 
 if __name__ == '__main__':
+    import os
+    import sys
     from app import create_app
-    standalone_app = create_app('development')
-    seed(standalone_app)
+    config_name = os.environ.get('FLASK_CONFIG') or ('production' if os.environ.get('DATABASE_URL') else 'development')
+    standalone_app = create_app(config_name)
+    try:
+        seed(standalone_app)
+    except Exception as e:
+        print("Warning: seed encountered an issue but continuing:", e)
+        import traceback
+        traceback.print_exc()

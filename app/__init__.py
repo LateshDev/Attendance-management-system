@@ -94,9 +94,10 @@ def create_app(config_name='default'):
     # Automatically ensure database tables and official timetable seed exist
     with app.app_context():
         try:
-            db.create_all()
-            from app.models import auto_migrate_schema, User, Batch
+            from app.models import auto_migrate_schema
             auto_migrate_schema()
+            db.create_all()
+            from app.models import User, Batch
             if not User.query.filter_by(email='admin@example.com').first() or not Batch.query.filter_by(batch_code='BTECH-CSE-3C').first():
                 import seed
                 seed.seed()
