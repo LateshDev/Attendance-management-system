@@ -574,6 +574,22 @@ class CorrectionRequest(db.Model):
         return f"<CorrectionRequest #{self.id} Student:{self.student_id} Status:{self.hod_status}>"
 
 
+def auto_migrate_schema():
+    """Ensure newly added columns are migrated to existing databases (e.g. Render PostgreSQL)."""
+    try:
+        from sqlalchemy import inspect, text
+        inspector = inspect(db.engine)
+        if 'users' in inspector.get_table_names():
+            cols = [c['name'] for c in inspector.get_columns('users')]
+            if 'initials' not in cols:
+                with db.engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN initials VARCHAR(10)"))
+                    conn.commit()
+                    print("Auto-migration: Added 'initials' column to users table.")
+    except Exception as e:
+        print("Auto-migration notice:", e)
+
+
 def sync_all_student_accounts(default_password='Student@12345'):
     """Synchronize user accounts for all student records in the database."""
     students = Student.query.all()

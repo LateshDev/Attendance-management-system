@@ -15,6 +15,9 @@ def seed(target_app=None):
         print("Ensuring all database tables exist...")
         db.create_all()
 
+        from app.models import auto_migrate_schema
+        auto_migrate_schema()
+
         # -------------------------------------------------------------
         # 1. ROLES (ADMIN, HOD, TEACHER, STUDENT)
         # -------------------------------------------------------------
